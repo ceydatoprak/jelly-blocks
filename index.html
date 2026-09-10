@@ -69,7 +69,11 @@ img,a{-webkit-user-drag:none;}
   width:100%;max-width:440px;margin:0 auto;
   height:100vh;height:100dvh;
   display:flex;flex-direction:column;
-  padding:calc(14px + env(safe-area-inset-top)) 9px calc(6px + env(safe-area-inset-bottom));
+  /* the bottom padding reserves the launcher-button band (see #mgBtn) */
+  padding:calc(14px + env(safe-area-inset-top)) 9px calc(62px + env(safe-area-inset-bottom));
+}
+@media (hover:hover) and (pointer:fine){
+  #app{padding-bottom:calc(54px + env(safe-area-inset-bottom));}
 }
 @media (min-width:520px){
   body{background:linear-gradient(160deg,#7fd0f5,#f9c9dd);}
@@ -140,6 +144,12 @@ header{flex:0 0 auto;}
 #scoreCloud .lbl{font-size:10px;font-weight:900;letter-spacing:2.2px;color:#c0a06e;}
 #scoreVal{font-size:32px;font-weight:900;line-height:1.05;color:#5a6b93;letter-spacing:.5px;
   text-shadow:0 2px 0 #fff, 0 3px 4px rgba(90,105,150,.25);}
+/* small best-score line — deliberately quieter than the live score */
+#bestLine{margin-top:1px;font-size:9px;font-weight:900;letter-spacing:1.5px;color:#c0a06e;
+  text-shadow:0 1px 0 rgba(255,255,255,.9);}
+#bestLine b{font-weight:900;color:#8f9dc0;letter-spacing:.6px;}
+@keyframes bestPop{0%{transform:scale(1)}40%{transform:scale(1.24);color:#ff9d2e}100%{transform:scale(1)}}
+#bestLine.new b{display:inline-block;animation:bestPop .5s cubic-bezier(.3,1.3,.5,1);}
 @keyframes scoreBounce{0%{transform:scale(1)}35%{transform:scale(1.12,.92)}65%{transform:scale(.97,1.04)}100%{transform:scale(1)}}
 #scoreCloud.bounce{animation:scoreBounce .42s cubic-bezier(.3,1.3,.5,1);}
 #crown{position:absolute;left:50%;top:-15px;transform:translateX(-50%);font-size:15px;filter:drop-shadow(0 2px 2px rgba(200,150,40,.5));}
@@ -174,6 +184,33 @@ header{flex:0 0 auto;}
 }
 @keyframes starWig{0%{transform:rotate(0) scale(1)}25%{transform:rotate(-16deg) scale(1.25)}50%{transform:rotate(12deg) scale(1.15)}75%{transform:rotate(-6deg) scale(1.05)}100%{transform:rotate(0) scale(1)}}
 #starBig.wig{animation:starWig .6s cubic-bezier(.3,1.2,.5,1);}
+/* meter full -> one progression star earned: grow, squash, settle */
+@keyframes starEarn{
+  0%  {transform:scale(1) rotate(0)}
+  20% {transform:scale(1.58,.74) rotate(-11deg)}
+  42% {transform:scale(.82,1.3) rotate(9deg)}
+  62% {transform:scale(1.2,.9) rotate(-4deg)}
+  80% {transform:scale(.96,1.06) rotate(2deg)}
+  100%{transform:scale(1) rotate(0)}
+}
+#starBig.earn{animation:starEarn .66s cubic-bezier(.28,1.25,.4,1);}
+#starMeter::after{
+  content:"";position:absolute;inset:-7px;border-radius:26px;pointer-events:none;opacity:0;
+  background:radial-gradient(58% 130% at 20% 50%, rgba(255,214,90,.9), rgba(255,214,90,0) 72%);
+}
+@keyframes starHalo{0%{opacity:0;transform:scale(.72)}28%{opacity:1;transform:scale(1.04)}100%{opacity:0;transform:scale(1.24)}}
+#starMeter.earn::after{animation:starHalo .72s ease-out;}
+#starPlus{
+  position:absolute;left:5px;top:-3px;pointer-events:none;opacity:0;
+  font-size:11px;font-weight:900;color:#ff9d2e;
+  text-shadow:0 1px 0 #fff, 0 0 7px rgba(255,190,60,.95);
+}
+@keyframes starPlusUp{
+  0%  {opacity:0;transform:translateY(4px) scale(.6)}
+  24% {opacity:1;transform:translateY(-6px) scale(1.18)}
+  100%{opacity:0;transform:translateY(-21px) scale(.9)}
+}
+#starPlus.go{animation:starPlusUp .9s cubic-bezier(.3,1,.4,1);}
 #starTrack{position:relative;width:60px;height:12px;border-radius:8px;background:rgba(150,130,100,.18);box-shadow:inset 0 2px 3px rgba(140,110,70,.3);overflow:hidden;}
 #starFill{position:absolute;left:0;top:0;bottom:0;width:0%;border-radius:8px;
   background:linear-gradient(180deg,#fff3a0,#ffc32e 60%,#ff9d00);
@@ -288,16 +325,16 @@ header{flex:0 0 auto;}
 
 /* landing / clearing animations */
 @keyframes land{
-  0%  {transform:scale(1.16,.84) translateY(-9%);opacity:.55;}
-  12% {opacity:1;}
-  22% {transform:scale(.90,1.13) translateY(0);}
-  40% {transform:scale(1.08,.94);}
-  58% {transform:scale(.96,1.05);}
-  74% {transform:scale(1.03,.98) rotate(.6deg);}
-  88% {transform:scale(.99,1.01) rotate(-.3deg);}
+  0%  {transform:scale(1.30,.70) translateY(-13%);opacity:.5;}
+  10% {opacity:1;}
+  19% {transform:scale(.83,1.21) translateY(0);}   /* compress, then spring back */
+  35% {transform:scale(1.15,.89);}
+  51% {transform:scale(.93,1.08) rotate(.9deg);}   /* secondary wobble */
+  67% {transform:scale(1.05,.97) rotate(-.5deg);}
+  83% {transform:scale(.985,1.015) rotate(.2deg);}
   100%{transform:scale(1,1) rotate(0);}
 }
-.jelly.landing{animation:land .52s cubic-bezier(.25,.9,.35,1) backwards;}
+.jelly.landing{animation:land .36s cubic-bezier(.24,.9,.32,1) backwards;}
 
 @keyframes clearPop{
   0%  {transform:scale(1);filter:brightness(1);}
@@ -307,7 +344,7 @@ header{flex:0 0 auto;}
   70% {transform:scale(1.34,1.34);filter:brightness(2.1);opacity:.85;}
   100%{transform:scale(.15,.15) rotate(12deg);filter:brightness(2.4);opacity:0;}
 }
-.jelly.clearing{animation:clearPop .46s cubic-bezier(.35,.2,.5,1) forwards;z-index:4;}
+.jelly.clearing{animation:clearPop .34s cubic-bezier(.35,.2,.5,1) forwards;z-index:4;}
 
 /* ghost preview */
 .ghost{
@@ -346,11 +383,17 @@ header{flex:0 0 auto;}
   background:linear-gradient(180deg,rgba(220,185,140,0),rgba(220,185,140,.4),rgba(220,185,140,0));
 }
 .pieceWrap{position:relative;cursor:grab;touch-action:none;transform-origin:center;}
-.pieceWrap.bob{animation:bob 2.6s ease-in-out infinite;}
-@keyframes bob{0%,100%{transform:translateY(0) rotate(0)}50%{transform:translateY(-4px) rotate(-1deg)}}
+/* Barely-there idle float. Transform only, three elements, and each slot gets
+   its own duration + negative delay so they never move in lockstep. */
+.pieceWrap.bob{animation:bob var(--bobDur,3.1s) ease-in-out infinite;}
+@keyframes bob{
+  0%,100%{transform:translateY(0) rotate(0deg) scale(1,1)}
+  30%    {transform:translateY(-2.6px) rotate(-.55deg) scale(.988,1.014)}
+  62%    {transform:translateY(.9px) rotate(.45deg) scale(1.012,.99)}
+}
 .pieceWrap.taken{opacity:0;pointer-events:none;}
 @keyframes slotIn{0%{transform:scale(0) rotate(-25deg);opacity:0}60%{transform:scale(1.16) rotate(6deg);opacity:1}80%{transform:scale(.95)}100%{transform:scale(1) rotate(0)}}
-.pieceWrap.enter{animation:slotIn .45s cubic-bezier(.3,1.3,.5,1) backwards;}
+.pieceWrap.enter{animation:slotIn .34s cubic-bezier(.3,1.3,.5,1) backwards;}
 
 footer{
   flex:0 0 auto;text-align:center;padding:7px 0 2px;
@@ -370,6 +413,7 @@ footer{
 .p-round{border-radius:50%;}
 .p-star{clip-path:polygon(50% 0%,61% 35%,98% 35%,68% 57%,79% 91%,50% 70%,21% 91%,32% 57%,2% 35%,39% 35%);}
 .p-sq{border-radius:30%;}
+.p-drop{border-radius:58% 58% 50% 50% / 68% 68% 44% 44%;}
 
 .floatText{
   position:absolute;left:0;top:0;text-align:center;white-space:nowrap;
@@ -390,6 +434,11 @@ footer{
 }
 .floatText.gold .m{color:#ffc31f;}
 .floatText.gold .p{color:#ff9d1c;}
+/* bigger clears shout louder — escalation without covering the board */
+.floatText.big .m{font-size:31px;}
+.floatText.big .p{font-size:22px;}
+.floatText.huge .m{font-size:37px;letter-spacing:1px;}
+.floatText.huge .p{font-size:25px;}
 
 /* ============ OVERLAYS ============ */
 .overlay{
@@ -434,6 +483,9 @@ footer{
   background:radial-gradient(60% 40% at 50% 45%, rgba(255,238,160,.9), rgba(255,214,80,0) 70%);}
 @keyframes feverF{0%{opacity:0}20%{opacity:1}100%{opacity:0}}
 #feverFlash.go{animation:feverF .9s ease-out;}
+/* big combos get a soft warm bloom instead of a camera shake */
+@keyframes feverSoft{0%{opacity:0}26%{opacity:.4}100%{opacity:0}}
+#feverFlash.soft{animation:feverSoft .5s ease-out;}
 #feverText{
   position:absolute;left:0;right:0;top:38%;z-index:76;text-align:center;pointer-events:none;
   font-size:34px;font-weight:900;letter-spacing:2px;color:#ffd12e;opacity:0;
@@ -505,7 +557,7 @@ footer{
 }
 .slot{background:radial-gradient(ellipse,#fffaf3,#fff5e900);border-radius:23px;}
 .slot+.slot::before{display:none;}
-.pieceWrap.bob,#skyDecor .dcandy{animation:none;}
+#skyDecor .dcandy{animation:none;}   /* background candy stays still; the tray pieces breathe */
 .ghost{border-radius:23%;animation:none;}
 .jelly.landing,.jelly.clearing{will-change:transform,opacity;}
 @keyframes clearPop{
@@ -524,7 +576,8 @@ footer{
 @media(prefers-reduced-motion:reduce){
   .jelly.landing{animation:none;}
   .jelly.clearing{animation:clearPop .12s ease-out forwards;}
-  .pieceWrap.enter,#comboBubble.pop,#scoreCloud.bounce,#starBig.wig{animation:none;}
+  .pieceWrap.enter,#comboBubble.pop,#scoreCloud.bounce,#starBig.wig,
+  #feverFlash.soft{animation:none;}
 }
 
 
@@ -606,7 +659,17 @@ footer{
   background:linear-gradient(160deg,#f4ead3,#e6d9bd);
   box-shadow:inset 0 2px 6px rgba(120,95,55,.35);
 }
-#mrCanvas .mr-ghost{position:absolute;inset:0;width:100%;height:100%;opacity:.16;}
+/* Visible only while the painting is still whole; mrShatter() fades it out so
+   the player rebuilds the picture from the pieces instead of tracing it. */
+#mrCanvas .mr-ghost{position:absolute;inset:0;width:100%;height:100%;opacity:.16;
+  transition:opacity .4s ease;}
+#mrCanvas .mr-ghost.gone{opacity:0;}
+/* what is left behind: just the cut lines, so the slots stay readable */
+#mrCanvas .mr-slots{position:absolute;inset:0;width:100%;height:100%;opacity:0;
+  transition:opacity .4s ease .12s;}
+#mrCanvas .mr-slots.on{opacity:.42;}
+#mrCanvas .mr-slots path{fill:none;stroke:rgba(126,98,58,.55);stroke-width:2.2;
+  stroke-linejoin:round;stroke-dasharray:8 7;}
 @keyframes mrShake{
   0%{transform:translate(0,0) rotate(0)}
   20%{transform:translate(-5px,2px) rotate(-1.4deg)}
@@ -714,7 +777,7 @@ footer{
 #mrBooWrap{position:absolute;left:0;top:0;z-index:7;pointer-events:none;will-change:transform;}
 #mrBoo{
   position:relative;width:calc(var(--mr-w)*.23);height:calc(var(--mr-w)*.23);
-  border-radius:30%;transform-origin:50% 100%;
+  border-radius:38% 38% 42% 42% / 34% 34% 48% 48%;transform-origin:50% 100%;
   background:linear-gradient(145deg,#c6f8ad,#7ede4a 34%,#4cbb27);
   box-shadow:inset 0 0 0 1px rgba(255,255,255,.6), inset 0 -3px 4px rgba(0,0,0,.16),
              0 4px 8px rgba(60,120,60,.3);
@@ -724,9 +787,62 @@ footer{
   content:"";position:absolute;left:14%;right:46%;top:9%;height:22%;border-radius:50%;
   background:linear-gradient(170deg,rgba(255,255,255,.95),rgba(255,255,255,.15));
 }
-@keyframes mrBooIdle{0%,100%{transform:scale(1,1)}50%{transform:scale(1.07,.93)}}
-@keyframes mrBooLand{0%{transform:scale(1.22,.78)}45%{transform:scale(.93,1.09)}100%{transform:scale(1,1)}}
-#mrBoo.land{animation:mrBooLand .34s cubic-bezier(.25,.9,.35,1);}
+/* the body is always breathing — the radius morph is what sells "gelatin" */
+@keyframes mrBooIdle{
+  0%,100%{transform:scale(1,1);border-radius:38% 38% 42% 42% / 34% 34% 48% 48%;}
+  28%{transform:scale(1.11,.90) rotate(-1.5deg);border-radius:46% 44% 36% 38% / 28% 30% 52% 50%;}
+  56%{transform:scale(.92,1.09) rotate(1.5deg);border-radius:32% 34% 48% 46% / 44% 42% 38% 40%;}
+  78%{transform:scale(1.04,.97);border-radius:41% 39% 40% 42% / 33% 35% 47% 45%;}
+}
+/* landing: deep squash, then two shrinking after-wobbles (secondary motion) */
+@keyframes mrBooLand{
+  0%  {transform:scale(1.38,.60);border-radius:52% 52% 30% 30% / 22% 22% 60% 60%;}
+  24% {transform:scale(.82,1.24) rotate(-2deg);border-radius:30% 30% 50% 50% / 50% 50% 34% 34%;}
+  46% {transform:scale(1.18,.86) rotate(2deg);border-radius:46% 44% 36% 38% / 28% 30% 52% 50%;}
+  66% {transform:scale(.93,1.09) rotate(-1deg);}
+  82% {transform:scale(1.06,.95) rotate(.6deg);}
+  92% {transform:scale(.98,1.02);}
+  100%{transform:scale(1,1);border-radius:38% 38% 42% 42% / 34% 34% 48% 48%;}
+}
+#mrBoo.land{animation:mrBooLand .6s cubic-bezier(.22,.92,.32,1);}
+/* jiggle used when Boo grabs a piece — a quick gelatin shiver */
+@keyframes mrBooJiggle{
+  0%{transform:scale(1,1)}
+  15%{transform:scale(1.24,.80) rotate(-4deg)}
+  32%{transform:scale(.84,1.20) rotate(4deg)}
+  50%{transform:scale(1.14,.90) rotate(-3deg)}
+  68%{transform:scale(.92,1.10) rotate(2deg)}
+  85%{transform:scale(1.05,.96) rotate(-1deg)}
+  100%{transform:scale(1,1)}
+}
+#mrBoo.jiggle{animation:mrBooJiggle .52s cubic-bezier(.28,.9,.35,1);}
+/* crouch + lean just before he launches at the painting */
+@keyframes mrBooAim{
+  0%  {transform:scale(1,1) rotate(0)}
+  55% {transform:scale(1.34,.66) rotate(-3deg)}
+  100%{transform:scale(.9,1.14) rotate(2deg)}
+}
+#mrBoo.aim{animation:mrBooAim .26s cubic-bezier(.35,.85,.4,1);}
+/* two gloating hops after a successful steal */
+@keyframes mrBooCheer{
+  0%  {transform:translateY(0) scale(1,1) rotate(0)}
+  14% {transform:translateY(2px) scale(1.24,.78)}
+  32% {transform:translateY(-11px) scale(.84,1.2) rotate(-5deg)}
+  50% {transform:translateY(0) scale(1.18,.84) rotate(3deg)}
+  66% {transform:translateY(-6px) scale(.9,1.12) rotate(-3deg)}
+  84% {transform:translateY(0) scale(1.06,.95) rotate(1deg)}
+  100%{transform:translateY(0) scale(1,1) rotate(0)}
+}
+#mrBoo.cheer{animation:mrBooCheer .66s cubic-bezier(.28,1.2,.4,1);}
+/* the air goes out of him when the player gets away with it */
+@keyframes mrBooDeflate{
+  0%  {transform:scale(1,1)}
+  22% {transform:scale(1.34,.64) rotate(-2deg)}
+  46% {transform:scale(1.16,.8) rotate(2deg)}
+  70% {transform:scale(1.22,.74) rotate(-1deg)}
+  100%{transform:scale(1.14,.82)}
+}
+#mrBoo.deflate{animation:mrBooDeflate .75s cubic-bezier(.3,.9,.4,1) forwards;}
 #mrBoo .mr-eye{
   position:absolute;top:34%;width:15%;height:19%;border-radius:50%;background:#37543a;
   transition:height .15s, top .15s, border-radius .15s, width .15s;
@@ -770,19 +886,9 @@ footer{
 /* ---- hidden artwork source (cloned by every puzzle piece) ---- */
 #mrArtMaster{position:absolute;width:0;height:0;overflow:hidden;pointer-events:none;}
 
-/* ---- TEMP developer launcher (drop this once the mini game is
-       wired into the Star Fever / bonus progression) ---- */
-#mrDevBtn{
-  position:absolute;left:9px;bottom:calc(5px + env(safe-area-inset-bottom));z-index:79;
-  padding:6px 11px 7px;border:none;border-radius:14px;cursor:pointer;
-  font-family:inherit;font-size:9px;font-weight:900;letter-spacing:1px;color:#fff;opacity:.78;
-  background:linear-gradient(180deg,#c07bff,#8b45e0);
-  box-shadow:inset 0 2px 0 rgba(255,255,255,.45),0 3px 0 #6423b0;
-}
-#mrDevBtn:active{transform:translateY(2px);box-shadow:inset 0 2px 0 rgba(255,255,255,.4),0 1px 0 rgba(0,0,0,.2);}
-
 @media(prefers-reduced-motion:reduce){
-  #mrBoo,#mrTimer.warn,#mrTimer.hot{animation:none;}
+  #mrBoo,#mrBoo.land,#mrBoo.jiggle,#mrBoo.aim,#mrBoo.cheer,#mrBoo.deflate,
+  #mrTimer.warn,#mrTimer.hot{animation:none;}
   .mr-in.pop,.mr-in.wob,#mrFrame.shake,#mrFrame.bounce,
   #mrSplat.go,#mrBanner.show .mr-big,#mrBanner.show .mr-mid,#mrBanner.show .mr-plus{animation:none;}
   #mrSplat.go{opacity:1;}
@@ -796,20 +902,25 @@ footer{
    are the main game's own.
    ========================================================= */
 @keyframes clearPop{
-  0%  {transform:scale(1,1) translateY(0) rotate(0);        filter:brightness(1);}
-  13% {transform:scale(1.26,.76) translateY(4%);            filter:brightness(1.45) saturate(1.15);}
-  29% {transform:scale(.82,1.24) translateY(-11%);          filter:brightness(1.85);}
-  45% {transform:scale(1.16,.9) translateY(-18%) rotate(-5deg); filter:brightness(2.05);}
-  62% {transform:scale(1.02,1.08) translateY(-23%) rotate(4deg);filter:brightness(2.2);opacity:.96;}
-  100%{transform:scale(.08,.08) translateY(-36%) rotate(12deg); filter:brightness(2.7);opacity:0;}
+  0%  {transform:scale(1,1) translateY(0) rotate(0);            filter:brightness(1);}
+  11% {transform:scale(1.34,.66) translateY(7%);                filter:brightness(1.5) saturate(1.2);}
+  27% {transform:scale(.74,1.34) translateY(-15%);              filter:brightness(1.95);}
+  44% {transform:scale(1.24,.86) translateY(-24%) rotate(-7deg);filter:brightness(2.15);}
+  61% {transform:scale(1,1.14) translateY(-30%) rotate(6deg);   filter:brightness(2.3);opacity:.94;}
+  100%{transform:scale(.06,.06) translateY(-46%) rotate(15deg); filter:brightness(2.7);opacity:0;}
 }
-.jelly.clearing{animation:clearPop .46s cubic-bezier(.32,.75,.4,1) forwards;z-index:4;}
-/* the hole left behind lights up for a moment */
+.jelly.clearing{animation:clearPop .40s cubic-bezier(.3,.78,.38,1) forwards;z-index:4;}
+/* the hole left behind flashes and gives a tiny pulse — this is what reads as
+   a wave travelling down the line, because the cells light up in pop order */
 @keyframes cellFlash{
-  0%{box-shadow:inset 0 0 0 2px rgba(255,255,255,.95), 0 0 16px rgba(255,225,140,.9);}
-  100%{box-shadow:inset 0 3px 5px rgba(80,140,190,.4), inset 0 -2px 0 rgba(255,255,255,.55);}
+  0%  {box-shadow:inset 0 0 0 2px rgba(255,255,255,.97), 0 0 20px rgba(255,225,140,.95);
+       transform:scale(1.12);}
+  38% {transform:scale(.96);}
+  70% {transform:scale(1.02);}
+  100%{box-shadow:inset 0 3px 5px rgba(80,140,190,.4), inset 0 -2px 0 rgba(255,255,255,.55);
+       transform:scale(1);}
 }
-.cell.flash{animation:cellFlash .42s ease-out;}
+.cell.flash{animation:cellFlash .40s cubic-bezier(.3,1.2,.5,1);}
 @media(prefers-reduced-motion:reduce){
   .jelly.clearing{animation:clearPop .12s ease-out forwards;}
   .cell.flash{animation:none;}
@@ -833,8 +944,9 @@ footer{
 .mr-piece.burst{filter:drop-shadow(0 6px 8px rgba(40,60,110,.45));}
 
 #mgWall{
-  position:absolute;inset:0;z-index:88;overflow:hidden;
-  display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:14px;
+  position:absolute;inset:0;z-index:88;overflow-x:hidden;overflow-y:auto;
+  -webkit-overflow-scrolling:touch;
+  display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:11px;
   padding:calc(104px + env(safe-area-inset-top)) 12px calc(12px + env(safe-area-inset-bottom));
   background:
     radial-gradient(70% 40% at 50% 0%, rgba(255,255,255,.85), rgba(255,255,255,0) 65%),
@@ -860,6 +972,38 @@ footer{
   position:relative;z-index:2;display:grid;grid-template-columns:repeat(3,1fr);
   gap:10px;width:min(100%,340px);
 }
+/* the progression banner: same stars as the meter at the top of the game */
+#mgNext{
+  position:relative;z-index:2;flex:0 0 auto;width:min(100%,340px);
+  padding:8px 12px 10px;border-radius:16px;text-align:center;
+  background:linear-gradient(180deg,#fff6e2,#f6e2bd);
+  box-shadow:inset 0 2px 0 rgba(255,255,255,.9), 0 4px 0 rgba(186,150,104,.5),
+             0 8px 15px rgba(140,100,60,.2);
+}
+#mgNext.ready{
+  background:linear-gradient(180deg,#f4ffe4,#dcf4bc);
+  box-shadow:inset 0 2px 0 rgba(255,255,255,.9), 0 4px 0 rgba(120,175,60,.55),
+             0 0 18px rgba(160,225,90,.6);
+}
+.mg-nlabel{font-size:8px;font-weight:900;letter-spacing:2.2px;color:#a3835c;text-transform:uppercase;
+  text-shadow:0 1px 0 rgba(255,255,255,.85);}
+.mg-nname{margin-top:2px;font-size:14px;font-weight:900;letter-spacing:1.2px;color:#7a5a34;
+  text-transform:uppercase;text-shadow:0 1px 0 rgba(255,255,255,.8);}
+.mg-nbar{margin:6px auto 0;width:76%;height:8px;border-radius:5px;overflow:hidden;
+  background:rgba(150,115,70,.26);box-shadow:inset 0 1px 2px rgba(120,90,50,.35);}
+.mg-nbar i{display:block;height:100%;border-radius:5px;
+  background:linear-gradient(90deg,#ffd23f,#ffab27);box-shadow:inset 0 1px 0 rgba(255,255,255,.6);}
+.mg-ncount{margin-top:5px;font-size:12px;font-weight:900;color:#a3814f;
+  text-shadow:0 1px 0 rgba(255,255,255,.75);}
+.mg-ncount.ok{color:#3f7a12;letter-spacing:1.4px;}
+.mg-start{
+  margin:8px auto 0;display:block;min-height:44px;padding:0 22px;border:0;border-radius:14px;
+  font-family:inherit;font-size:13px;font-weight:900;letter-spacing:1.2px;cursor:pointer;
+  background:linear-gradient(180deg,#a8ea63,#6fc728);color:#1e4408;
+  box-shadow:inset 0 2px 0 rgba(255,255,255,.5),0 4px 0 #4e9c14;
+}
+.mg-start:active{transform:translateY(3px);box-shadow:inset 0 2px 0 rgba(255,255,255,.45),0 1px 0 rgba(0,0,0,.2);}
+.mg-start:focus-visible{outline:3px solid #154b96;outline-offset:2px;}
 .mg-slot{
   position:relative;aspect-ratio:3/4;border-radius:10px;overflow:hidden;
   background:linear-gradient(160deg,#e9d9bd,#dcc7a3);
@@ -910,28 +1054,58 @@ footer{
 }
 #mgClose:active{transform:translateY(3px);box-shadow:inset 0 2px 0 rgba(255,255,255,.45),0 1px 0 rgba(0,0,0,.2);}
 
-/* ---- launcher pills (temp UI until this is wired into progression) ---- */
+/* ---- the single launcher: gallery + progress toward the next painting ---- */
 #mgBtn{
-  position:absolute;left:9px;bottom:calc(28px + env(safe-area-inset-bottom));z-index:79;
-  padding:6px 11px 7px;border:none;border-radius:14px;cursor:pointer;
-  font-family:inherit;font-size:9px;font-weight:900;letter-spacing:1px;color:#fff;opacity:.78;
+  position:absolute;left:0;right:0;margin:0 auto;width:max-content;
+  bottom:calc(7px + env(safe-area-inset-bottom));z-index:79;
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  min-height:46px;padding:0 16px;border:none;border-radius:20px;cursor:pointer;
+  touch-action:manipulation;-webkit-tap-highlight-color:transparent;
+  font-family:inherit;font-size:12px;font-weight:900;letter-spacing:1px;color:#fff;opacity:.94;
   background:linear-gradient(180deg,#ffd06b,#f0a123);
-  box-shadow:inset 0 2px 0 rgba(255,255,255,.45),0 3px 0 #c67c0c;
+  box-shadow:inset 0 2px 0 rgba(255,255,255,.45),0 4px 0 #c67c0c;
 }
-#mgBtn:active{transform:translateY(2px);box-shadow:inset 0 2px 0 rgba(255,255,255,.4),0 1px 0 rgba(0,0,0,.2);}
-#mrDevBtn.locked{background:linear-gradient(180deg,#b9c2d6,#8994ad);box-shadow:inset 0 2px 0 rgba(255,255,255,.4),0 3px 0 #6e7891;}
-@keyframes mgDeny{0%,100%{transform:translateX(0)}25%{transform:translateX(-4px)}50%{transform:translateX(4px)}75%{transform:translateX(-2px)}}
-#mrDevBtn.deny{animation:mgDeny .32s ease-in-out;}
+#mgBtn:active{transform:translateY(3px);box-shadow:inset 0 2px 0 rgba(255,255,255,.4),0 1px 0 rgba(0,0,0,.2);}
+#mgBtn .mg-prog{
+  padding:3px 9px 4px;border-radius:12px;font-size:11px;letter-spacing:.6px;
+  background:rgba(255,255,255,.3);box-shadow:inset 0 1px 0 rgba(255,255,255,.55);
+}
+#mgBtn.ready{background:linear-gradient(180deg,#b6ee78,#6fc728);box-shadow:inset 0 2px 0 rgba(255,255,255,.5),0 4px 0 #4e9c14;}
+#mgBtn.ready .mg-prog{background:rgba(255,255,255,.55);color:#25510a;}
+#mgBtn .mg-bang{
+  display:none;position:absolute;top:-7px;right:-7px;width:21px;height:21px;border-radius:50%;
+  align-items:center;justify-content:center;font-size:12px;font-style:normal;color:#fff;
+  background:linear-gradient(180deg,#ff9ec0,#ff4f86);box-shadow:0 2px 0 #cf2b60;
+}
+#mgBtn.hasNew .mg-bang{display:flex;}
+/* one short "look at me" wiggle when a painting first becomes affordable */
+@keyframes mgNew{
+  0%  {transform:translateY(0) scale(1) rotate(0)}
+  14% {transform:translateY(-8px) scale(1.07,.93) rotate(0)}
+  30% {transform:translateY(0) scale(.95,1.06) rotate(-2.5deg)}
+  46% {transform:translateY(-4px) scale(1.03,.98) rotate(2.5deg)}
+  64% {transform:translateY(0) scale(.99,1.02) rotate(-1.2deg)}
+  100%{transform:translateY(0) scale(1) rotate(0)}
+}
+#mgBtn.hasNew{animation:mgNew 1.05s cubic-bezier(.3,1.2,.5,1) 2;}
 #mgHint{
-  position:absolute;left:9px;bottom:calc(52px + env(safe-area-inset-bottom));z-index:79;
-  padding:6px 10px 7px;border-radius:12px;pointer-events:none;opacity:0;transition:opacity .25s;
-  font-size:9px;font-weight:900;letter-spacing:.8px;color:#6b5a86;
+  position:absolute;left:0;right:0;margin:0 auto;width:max-content;
+  bottom:calc(62px + env(safe-area-inset-bottom));z-index:79;
+  padding:7px 11px 8px;border-radius:12px;pointer-events:none;opacity:0;transition:opacity .25s;
+  font-size:10px;font-weight:900;letter-spacing:.8px;color:#6b5a86;
   background:rgba(255,255,255,.94);box-shadow:0 4px 10px rgba(90,80,130,.28);
 }
 #mgHint.show{opacity:1;}
 
+/* the launcher row owns a reserved band at the foot of the app, so the
+   bigger touch targets never sit on top of the footer, tray or board */
+@media (hover:hover) and (pointer:fine){
+  #mgBtn{min-height:38px;padding:0 14px;font-size:11px;border-radius:17px;}
+}
+
 @media(prefers-reduced-motion:reduce){
-  #mrShock.go,.mg-slot.fresh,#mrDevBtn.deny{animation:none;}
+  #mrShock.go,.mg-slot.fresh,#mgBtn.hasNew,.pieceWrap.bob,
+  #starBig.earn,#starMeter.earn::after,#starPlus.go{animation:none;}
 }
 
 /* ---- gallery slot plates: what unlocks what ---- */
@@ -974,7 +1148,6 @@ footer{
 /* Static offscreen mini-game decorations should consume no animation budget. */
 #mrOverlay:not(.show) *, #mgWall:not(.show) * {animation-play-state:paused!important;}
 html.backgrounded * {animation-play-state:paused!important;}
-@media (pointer:coarse){.pieceWrap.bob{animation:none;}}
 .mg-replay{position:absolute;left:5px;right:5px;bottom:5px;min-height:44px;border:0;border-radius:10px;background:#76cc35;color:#193a0b;font-family:inherit;font-size:12px;font-weight:800;cursor:pointer;}
 .mg-slot.filled .mg-name{bottom:51px;font-size:10px;}
 .reset-all{display:block;margin:14px auto 0;padding:10px 14px;min-height:44px;border:1px solid #b73c62;border-radius:14px;background:#fff0f4;color:#992a4b;font-family:inherit;font-weight:800;cursor:pointer;}
@@ -1002,6 +1175,7 @@ html.backgrounded * {animation-play-state:paused!important;}
         <div id="crown">👑</div>
         <div class="lbl">SCORE</div>
         <div id="scoreVal">0</div>
+        <div id="bestLine">BEST <b id="bestVal">0</b></div>
       </div>
       <button id="pauseBtn" aria-label="Pause"><i></i><i></i></button>
     </div>
@@ -1009,6 +1183,7 @@ html.backgrounded * {animation-play-state:paused!important;}
       <div id="hint">Clear more lines<br>for bigger combos!</div>
       <div id="starMeter">
         <div id="starBig"><div class="starShape"></div></div>
+        <div id="starPlus">+1</div>
         <div id="starTrack">
           <div id="starFill"></div>
           <div id="starPips"><i></i><i></i><i></i></div>
@@ -1081,6 +1256,7 @@ html.backgrounded * {animation-play-state:paused!important;}
       <div id="mrFrame">
         <div id="mrCanvas">
           <svg class="mr-ghost" viewBox="0 0 300 400" aria-hidden="true"><use href="#mrArtSrc"/></svg>
+          <svg class="mr-slots" viewBox="0 0 300 400" aria-hidden="true"></svg>
         </div>
       </div>
       <div id="mrBooWrap">
@@ -1144,6 +1320,31 @@ html.backgrounded * {animation-play-state:paused!important;}
           <stop offset=".58" stop-color="#2a1c10" stop-opacity="0"/>
           <stop offset="1" stop-color="#2a1c10" stop-opacity=".4"/>
         </radialGradient>
+        <linearGradient id="snSkyG" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#0a1834"/><stop offset=".38" stop-color="#153468"/>
+          <stop offset=".66" stop-color="#1d4382"/><stop offset="1" stop-color="#122a55"/>
+        </linearGradient>
+        <radialGradient id="snMoonG" cx=".4" cy=".35" r=".75">
+          <stop offset="0" stop-color="#fff7c8"/><stop offset="1" stop-color="#f3d268"/>
+        </radialGradient>
+        <linearGradient id="snHillG" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#2d4d77"/><stop offset="1" stop-color="#1b2f52"/>
+        </linearGradient>
+        <linearGradient id="gwSkyG" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#e8dcc0"/><stop offset=".45" stop-color="#dcd0b4"/>
+          <stop offset="1" stop-color="#c9bfa4"/>
+        </linearGradient>
+        <linearGradient id="gwSeaG" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#2f7fa6"/><stop offset=".55" stop-color="#1d5580"/>
+          <stop offset="1" stop-color="#0e2f4e"/>
+        </linearGradient>
+        <linearGradient id="gwWaveG" x1=".15" y1="0" x2=".8" y2="1">
+          <stop offset="0" stop-color="#3e93b8"/><stop offset=".42" stop-color="#1d5a86"/>
+          <stop offset="1" stop-color="#0c2947"/>
+        </linearGradient>
+        <linearGradient id="gwFujiG" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#7c8ea6"/><stop offset="1" stop-color="#4d6076"/>
+        </linearGradient>
         <linearGradient id="mrPieceGloss" x1=".1" y1="0" x2=".7" y2="1">
           <stop offset="0" stop-color="#ffffff" stop-opacity=".3"/>
           <stop offset=".42" stop-color="#ffffff" stop-opacity=".06"/>
@@ -1196,6 +1397,105 @@ html.backgrounded * {animation-play-state:paused!important;}
         <rect x="0" y="0" width="300" height="400" fill="url(#mrGlossG)"/>
         <rect x="0" y="0" width="300" height="400" fill="url(#mrVignetteG)"/>
       </g>
+
+      <!-- ===== artwork 2: The Starry Night ===== -->
+      <g id="mrStarrySrc">
+        <rect x="0" y="0" width="300" height="400" fill="url(#snSkyG)"/>
+        <g fill="none" stroke-linecap="round">
+          <path d="M-12 58 C42 30 84 88 140 62 C196 36 236 92 312 58" stroke="#2f5fae" stroke-width="18" opacity=".8"/>
+          <path d="M-12 90 C44 64 86 120 142 94 C198 68 238 122 312 90" stroke="#4a83d0" stroke-width="11" opacity=".62"/>
+          <path d="M-12 130 C40 106 96 156 150 130 C204 104 246 152 312 126" stroke="#27508f" stroke-width="16" opacity=".85"/>
+          <path d="M-12 168 C46 146 92 194 152 170 C210 147 250 188 312 164" stroke="#3a6cb4" stroke-width="10" opacity=".55"/>
+          <path d="M-12 204 C44 186 96 224 154 204 C210 185 252 218 312 198" stroke="#22457c" stroke-width="14" opacity=".9"/>
+        </g>
+        <g fill="none" stroke-linecap="round">
+          <path d="M124 116 C116 88 152 64 190 74 C226 84 240 120 224 146" stroke="#cfe0f5" stroke-width="5" opacity=".5"/>
+          <path d="M150 102 C180 86 204 106 199 129 C194 152 166 160 151 145 C138 132 147 114 162 117 C173 119 175 130 168 135" stroke="#e8cf72" stroke-width="7" opacity=".92"/>
+        </g>
+        <g>
+          <circle cx="248" cy="56" r="31" fill="#f6e08a" opacity=".22"/>
+          <circle cx="248" cy="56" r="22" fill="#f6e08a" opacity=".4"/>
+          <path d="M259 37 A21 21 0 1 0 259 75 A16.5 16.5 0 1 1 259 37 Z" fill="url(#snMoonG)"/>
+          <g fill="#f4d76b">
+            <circle cx="40" cy="46" r="14" opacity=".2"/><circle cx="40" cy="46" r="6" opacity=".95"/>
+            <circle cx="96" cy="30" r="11" opacity=".18"/><circle cx="96" cy="30" r="4.6" opacity=".9"/>
+            <circle cx="30" cy="126" r="12" opacity=".18"/><circle cx="30" cy="126" r="5" opacity=".9"/>
+            <circle cx="272" cy="128" r="13" opacity=".18"/><circle cx="272" cy="128" r="5.4" opacity=".9"/>
+            <circle cx="212" cy="42" r="9" opacity=".16"/><circle cx="212" cy="42" r="3.6" opacity=".85"/>
+            <circle cx="76" cy="188" r="10" opacity=".16"/><circle cx="76" cy="188" r="4.2" opacity=".85"/>
+            <circle cx="242" cy="196" r="9" opacity=".16"/><circle cx="242" cy="196" r="3.8" opacity=".85"/>
+          </g>
+        </g>
+        <path d="M0 234 C46 216 92 244 138 232 C186 219 232 242 300 224 L300 292 L0 292 Z" fill="url(#snHillG)"/>
+        <path d="M0 262 C54 248 104 272 158 260 C214 247 254 268 300 256 L300 400 L0 400 Z" fill="#182b4c"/>
+        <g fill="#0e1c36">
+          <rect x="92" y="288" width="36" height="30"/><path d="M89 288 L110 269 L131 288 Z"/>
+          <rect x="140" y="294" width="28" height="26"/><path d="M137 294 L154 279 L171 294 Z"/>
+          <rect x="202" y="290" width="32" height="28"/><path d="M199 290 L218 273 L237 290 Z"/>
+          <rect x="46" y="298" width="26" height="24"/><path d="M43 298 L59 285 L75 298 Z"/>
+          <rect x="176" y="250" width="15" height="70"/><path d="M173 250 L183.5 220 L194 250 Z"/>
+          <rect x="252" y="296" width="30" height="26"/><path d="M249 296 L267 282 L285 296 Z"/>
+        </g>
+        <g fill="#ffd98a" opacity=".92">
+          <rect x="100" y="297" width="7" height="8"/><rect x="114" y="297" width="7" height="8"/>
+          <rect x="148" y="302" width="6" height="7"/><rect x="212" y="299" width="7" height="8"/>
+          <rect x="53" y="306" width="6" height="7"/><rect x="262" y="304" width="6" height="7"/>
+          <rect x="180" y="266" width="7" height="9"/>
+        </g>
+        <path d="M0 322 C60 314 130 328 196 320 C244 314 274 322 300 316 L300 400 L0 400 Z" fill="#101f3c"/>
+        <path d="M68 400 C40 344 44 266 60 202 C68 172 74 160 80 148 C90 188 101 244 101 300 C101 346 96 378 90 400 Z" fill="#150e07"/>
+        <path d="M74 392 C63 342 67 280 77 230" fill="none" stroke="#33220f" stroke-width="6" stroke-linecap="round" opacity=".75"/>
+        <path d="M86 356 C92 316 92 268 86 226" fill="none" stroke="#2a1c0d" stroke-width="5" stroke-linecap="round" opacity=".6"/>
+        <rect x="0" y="0" width="300" height="400" fill="url(#mrGlossG)"/>
+        <rect x="0" y="0" width="300" height="400" fill="url(#mrVignetteG)"/>
+      </g>
+
+      <!-- ===== artwork 3: The Great Wave off Kanagawa ===== -->
+      <g id="mrWaveSrc">
+        <rect x="0" y="0" width="300" height="400" fill="url(#gwSkyG)"/>
+        <!-- Mount Fuji sits far away, inside the trough the wave opens up -->
+        <path d="M150 300 C168 258 188 226 206 206 C224 226 244 258 262 300 Z" fill="url(#gwFujiG)"/>
+        <path d="M190 232 L206 206 L222 232 C215 227 210 234 204 229 C199 226 194 230 190 232 Z" fill="#f4f8fa"/>
+        <!-- sea -->
+        <path d="M0 300 C50 292 100 306 152 300 C206 294 252 306 300 298 L300 400 L0 400 Z" fill="url(#gwSeaG)"/>
+        <path d="M0 332 C52 324 104 342 156 332 C208 322 254 338 300 330 L300 400 L0 400 Z" fill="#123a5c" opacity=".85"/>
+        <!-- two boats riding it out -->
+        <g fill="#3f3222">
+          <path d="M182 350 C204 343 236 343 258 350 C247 361 193 361 182 350 Z"/>
+          <path d="M230 318 C245 313 269 313 284 318 C275 327 239 327 230 318 Z"/>
+        </g>
+        <g fill="#241c12" opacity=".85">
+          <rect x="217" y="334" width="3" height="16"/><rect x="255" y="303" width="2.6" height="14"/>
+        </g>
+        <!-- the wave itself: a mass climbing out of the left, curling back over -->
+        <path d="M-10 400 L-10 228 C0 166 32 116 86 100 C144 84 198 110 228 154
+                 C246 180 252 210 244 236 C238 208 222 186 198 176
+                 C168 164 138 176 122 200 C100 232 90 302 90 400 Z" fill="url(#gwWaveG)"/>
+        <path d="M-8 232 C2 172 34 124 86 108 C142 92 194 118 224 160" fill="none"
+              stroke="#f4fafc" stroke-width="16" stroke-linecap="round"/>
+        <path d="M4 248 C16 196 46 154 92 140 C142 125 188 150 214 188" fill="none"
+              stroke="#dbeaf1" stroke-width="7" stroke-linecap="round" opacity=".6"/>
+        <!-- foam claws hanging off the lip -->
+        <g fill="#f8fcfd">
+          <path d="M226 158 C238 156 246 168 238 178 C230 187 218 183 216 173 C214 164 219 159 226 158 Z"/>
+          <path d="M196 128 C209 124 219 134 213 146 C207 156 195 155 191 146 C188 138 190 130 196 128 Z"/>
+          <path d="M152 104 C166 100 176 111 169 123 C163 133 150 132 147 123 C144 115 146 106 152 104 Z"/>
+          <path d="M104 108 C118 104 128 116 120 127 C113 137 101 135 98 126 C95 118 98 110 104 108 Z"/>
+          <path d="M58 138 C71 132 84 141 78 154 C72 165 59 165 55 155 C52 147 53 141 58 138 Z"/>
+          <path d="M26 188 C38 182 50 191 45 204 C40 215 28 215 24 205 C21 197 21 191 26 188 Z"/>
+        </g>
+        <g fill="#ffffff" opacity=".9">
+          <circle cx="240" cy="140" r="4"/><circle cx="208" cy="104" r="3.4"/><circle cx="170" cy="86" r="4.2"/>
+          <circle cx="126" cy="88" r="3.4"/><circle cx="80" cy="116" r="3"/><circle cx="44" cy="162" r="3.4"/>
+          <circle cx="18" cy="212" r="2.8"/><circle cx="252" cy="178" r="3"/>
+        </g>
+        <!-- a second swell rising on the right edge -->
+        <path d="M258 400 C264 338 280 304 300 290 L300 400 Z" fill="#0f3457" opacity=".85"/>
+        <path d="M264 368 C270 332 283 308 300 294" fill="none" stroke="#eaf4f8"
+              stroke-width="6" stroke-linecap="round" opacity=".75"/>
+        <rect x="0" y="0" width="300" height="400" fill="url(#mrGlossG)"/>
+        <rect x="0" y="0" width="300" height="400" fill="url(#mrVignetteG)"/>
+      </g>
     </svg>
   </div>
 
@@ -1206,15 +1506,19 @@ html.backgrounded * {animation-play-state:paused!important;}
       <div class="mg-title">MY GALLERY</div>
       <div class="mg-sub">rescued masterpieces</div>
     </div>
+    <div id="mgNext"></div>
     <div id="mgGrid"></div>
     <div class="mg-note" id="mgCount">0 / 6 collected</div>
     <button class="reset-all" type="button" data-reset-all>Reset All Progress</button>
   </div>
   <div id="mgHint"></div>
 
-  <!-- TEMP launchers while the mini game is being tested -->
-  <button id="mrDevBtn" type="button">🖼 RUSH</button>
-  <button id="mgBtn" type="button">🏛 GALLERY</button>
+  <!-- one launcher: the gallery, carrying the progress toward the next painting -->
+  <button id="mgBtn" type="button">
+    <span class="mg-txt">🏛 GALLERY</span>
+    <span class="mg-prog">⭐ 0/5</span>
+    <i class="mg-bang" aria-hidden="true">!</i>
+  </button>
 
 </div>
 </div>
@@ -1246,8 +1550,12 @@ const appEl     = $('#app');
 // Fixed budgets prevent multi-line clears from flooding mobile WebViews.
 const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
 const coarsePointer = matchMedia('(pointer: coarse)');
-const FX_LIMIT = coarsePointer.matches ? 36 : 64;
+const FX_LIMIT = coarsePointer.matches ? 46 : 84;
 let activeParticles = 0;
+// Per-event particle counts run through here: phones get the plain number,
+// roomier pointers a little more. FX_LIMIT still caps everything downstream.
+const FX_RICH = coarsePointer.matches ? 1 : 1.45;
+const fxCount = (base)=> Math.round(base*FX_RICH);
 // Optional native bridge: assign the imported Capacitor Haptics plugin here.
 const haptics = {
   enabled:true, last:-Infinity, priority:0,
@@ -1292,31 +1600,53 @@ function cancelDrag(){
    1. AUDIO — everything is synthesised, no files
    ========================================================= */
 const A = {
-  ctx:null, master:null, enabled:true, ready:false, voices:0, sources:new Set(),
+  ctx:null, master:null, enabled:true, ready:false, unlocked:false, voices:0, sources:new Set(),
+  // Exactly one AudioContext is ever built. Safari hands it back suspended, so
+  // every entry point runs through init() -> resume() from inside a gesture.
   init(){
-    if(this.ctx) { this.resume(); return; }
-    const C = window.AudioContext || window.webkitAudioContext;
-    if(!C) return;
+    if(!this.ctx){
+      const C = window.AudioContext || window.webkitAudioContext;
+      if(!C) return;
+      try{
+        this.ctx = new C({latencyHint:'interactive'});
+        this.master = this.ctx.createGain();
+        this.master.gain.value = 0.42;
+        const comp = this.ctx.createDynamicsCompressor();
+        comp.threshold.value = -16; comp.knee.value = 22;
+        comp.ratio.value = 9; comp.attack.value = 0.004; comp.release.value = 0.22;
+        this.master.connect(comp); comp.connect(this.ctx.destination);
+        this.ready = true;
+      }catch(e){ this.ctx=null; this.ready=false; return; }
+    }
+    this.resume();
+  },
+  // iOS also wants one real (silent) buffer played inside the gesture before
+  // it treats the context as unlocked.
+  kick(){
+    if(this.unlocked || !this.ctx) return;
     try{
-      this.ctx = new C({latencyHint:'interactive'});
-      this.master = this.ctx.createGain();
-      this.master.gain.value = 0.42;
-      const comp = this.ctx.createDynamicsCompressor();
-      comp.threshold.value = -16; comp.knee.value = 22;
-      comp.ratio.value = 9; comp.attack.value = 0.004; comp.release.value = 0.22;
-      this.master.connect(comp); comp.connect(this.ctx.destination);
-      this.ready = true;
-    }catch(e){ this.ready=false; }
+      const buf = this.ctx.createBuffer(1,1,22050);
+      const src = this.ctx.createBufferSource();
+      src.buffer = buf; src.connect(this.ctx.destination); src.start(0);
+      this.unlocked = true;
+    }catch(e){}
   },
   resume(){
-    if(this.enabled && !document.hidden && this.ctx && this.ctx.state === 'suspended')
-      this.ctx.resume().catch(()=>{});
+    if(!this.ctx || !this.enabled || document.hidden) return;
+    if(this.ctx.state !== 'running'){
+      try{ const p = this.ctx.resume(); if(p && p.catch) p.catch(()=>{}); }catch(e){}
+    }
+    this.kick();
   },
   stop(){
     for(const source of this.sources){ try{ source.stop(); }catch(e){} }
   },
   suspend(){ this.stop(); if(this.ctx) this.ctx.suspend().catch(()=>{}); },
-  ok(){ return this.ready && this.enabled && this.ctx && this.ctx.state === 'running'; }
+  ok(){
+    if(!this.ready || !this.enabled || !this.ctx) return false;
+    if(this.ctx.state !== 'running'){ this.resume(); return false; }
+    return true;
+  }
 };
 
 function tone(o){
@@ -1376,22 +1706,29 @@ function noise(o){
 const detune = (n) => n * rnd(0.98,1.02);
 
 // Soft gummy plops and a pentatonic candy chime, with few audio voices.
+// A sticky pluck: the body peels upward, a tiny tick sits on top.
 function playPickupSound(){
-  tone({f:390,f2:690,dur:.12,g:.15,atk:.006});
-  tone({f:980,f2:760,dur:.07,g:.035,t:.015});
+  tone({f:300,f2:585,dur:.13,g:.17,atk:.005,type:'triangle',lp:2300,q:.8});
+  tone({f:790,f2:1120,dur:.06,g:.045,atk:.003});
+  noise({f:1900,g:.011,dur:.03,q:1.7});
 }
+// Placement: a soft thump with a gummy body under it, never a click.
 function playPlaceSound(size, idx){
   if(idx > 2) return;
-  const f = 430 + idx*65;
-  tone({f,f2:155+idx*22,dur:.14,g:.16,atk:.004});
-  tone({f:f*2,f2:f*1.3,dur:.055,g:.025});
+  const f = 318 + idx*46;
+  tone({f, f2:f*.46, dur:.17, g:.20, atk:.003, type:'triangle', lp:1550, q:.9});
+  tone({f:f*2.05, f2:f*1.25, dur:.06, g:.05, atk:.002});
+  noise({f:760, g:.022, dur:.05, q:.85});
 }
 function playPopSound(pitch){
   const f = Math.min(pitch||720,1200);
-  tone({f:f*.75,f2:f*1.3,dur:.085,g:.10,atk:.004});
+  tone({f:f*.72, f2:f*1.34, dur:.09, g:.11, atk:.004, type:'triangle', lp:5200});
+  tone({f:f*1.5, dur:.045, g:.03, atk:.003});
 }
+// The "heavy" layer under a big placement — mid-forward so phones keep it.
 function playJellyBounce(){
-  tone({f:220,f2:110,dur:.19,g:.085,atk:.01});
+  tone({f:262,f2:146,dur:.2,g:.10,atk:.008,type:'triangle',lp:1200,q:1});
+  tone({f:392,f2:236,dur:.11,g:.04,atk:.005,t:.02});
 }
 function candyChime(notes, step, gain){
   notes.forEach((f,i)=>{
@@ -1405,29 +1742,46 @@ function playClearSound(lines){
 // A clear pops one block at a time: every pop climbs a step of the pentatonic
 // ladder and gets a touch louder, then the last one bursts into a sparkle.
 const CLEAR_LADDER = [1, 1.125, 1.25, 1.5, 1.6875];
+// The thump that opens a clear. It grows with the number of lines, and from two
+// lines up a bright sparkle layer rides on top of it.
 function playClearIntro(lines){
-  const f = 148 + Math.min(lines,6)*24;
-  tone({f, f2:f*.55, type:'sine', dur:.22, g:.10, atk:.006, lp:900});
-  noise({f:1300, g:.018, dur:.05, q:1.1});
+  const L = Math.min(lines,6);
+  const f = 196 + L*26;
+  tone({f, f2:f*.58, type:'triangle', dur:.24, g:.11+L*.012, atk:.005, lp:1150, q:1});
+  tone({f:f*1.5, f2:f*.9, type:'sine', dur:.13, g:.05, atk:.004, t:.012});
+  noise({f:1500+L*180, g:.02+L*.004, dur:.06, q:1.1});
 }
 function playClearNote(i, total){
   const rung = CLEAR_LADDER[i % CLEAR_LADDER.length];
   const oct  = Math.pow(2, Math.min(Math.floor(i/CLEAR_LADDER.length), 2));
   const f = Math.min(523.25*rung*oct, 2200);
   const g = Math.min(.055 + i*.011, .155);
+  // each pop is a gummy body plus its own bright top, so a run of them reads
+  // as one thick rising wave rather than a string of thin beeps
+  tone({f:f*.5, f2:f*.34, type:'triangle', dur:.1, g:g*.5, atk:.003, lp:1400, q:.9});
   tone({f, f2:f*1.5, type:'triangle', dur:.13, g, atk:.004, lp:5200});
-  tone({f:f*2, dur:.055, g:g*.32, atk:.003});
   if(i === total-1 && total > 1){                    // payoff at the end of the wave
     candyChime([f*1.25, f*1.5, f*2].map(x=>Math.min(x,2800)), .05, Math.min(.045+total*.004,.085));
   }
 }
+// Combos climb the ladder: longer phrase and a warm body note underneath.
 function playComboSound(combo){
-  candyChime(combo>=3 ? [659.25,880,1046.5,1318.5] : [783.99,1046.5],.07,.075);
+  const runs = [[783.99,1046.5],
+                [659.25,880,1046.5,1318.5],
+                [587.33,783.99,987.77,1174.66,1567.98]];
+  const run = runs[Math.min(Math.max(combo-2,0), runs.length-1)];
+  tone({f:196, f2:147, type:'triangle', dur:.2, g:.07, atk:.006, lp:900});
+  candyChime(run, .065, .075 + Math.min(combo,6)*.004);
 }
-function playStarSound(){ candyChime([1046.5,1318.5,1568],.065,.06); }
+function playStarSound(){
+  tone({f:392, f2:523.25, type:'triangle', dur:.16, g:.06, atk:.005, lp:2600});
+  candyChime([1046.5,1318.5,1568],.06,.065);
+}
 function playFeverSound(){ candyChime([523.25,659.25,783.99,1046.5,1318.5,1568],.075,.09); }
+// A soft rubber "nope" — two short squeezes, nothing sharp.
 function playInvalidSound(){
-  tone({f:detune(250), f2:detune(160), type:'sine', dur:.16, g:.1, lp:900, atk:.008});
+  tone({f:detune(238), f2:detune(158), type:'triangle', dur:.15, g:.11, lp:820, q:.9, atk:.006});
+  tone({f:detune(352), f2:detune(246), type:'sine', dur:.1, g:.05, atk:.004, t:.05});
 }
 function playButtonSound(){
   tone({f:detune(680), f2:detune(940), type:'sine', dur:.09, g:.12, lp:2600, atk:.004});
@@ -1489,6 +1843,9 @@ const SHAPES = [
 ];
 const TOTAL_W = SHAPES.reduce((s,x)=>s+x.weight,0);
 const COLORS = ['pink','red','orange','lime','cyan','blue','purple'];
+// Tuning knob: share of pieces that carry a star cell (0 = never, 1 = always).
+// Raised from 0.085 so Masterpiece Rush is reachable in a short test run.
+const STAR_PIECE_CHANCE = 0.30;
 
 function randomShape(){
   let r = Math.random()*TOTAL_W;
@@ -1504,7 +1861,7 @@ function randomPiece(){
     color: pick(COLORS),
     starIndex: -1
   };
-  if(Math.random() < 0.085) p.starIndex = rint(0, s.cells.length-1);
+  if(Math.random() < STAR_PIECE_CHANCE) p.starIndex = rint(0, s.cells.length-1);
   return p;
 }
 
@@ -1625,19 +1982,101 @@ function resetGame(){
   score = 0; displayScore = 0; combo = 0;
   starProgress = 0;
   gameOver = false; paused = false; resolving = false;
-  updateScore(true); updateCombo(); updateStarMeter(false);
+  updateScore(true); updateCombo(); updateStarMeter(false); syncBest();
   pieces = newPieceSet();
   renderTray(true);
   $('#overOverlay').classList.remove('show');
   $('#pauseOverlay').classList.remove('show');
 }
 
-function newPieceSet(){
-  for(let attempt=0; attempt<50; attempt++){
-    const set = [randomPiece(), randomPiece(), randomPiece()];
-    if(set.some(p=>canFitAnywhere(p))) return set;
+/* Board-aware piece generation.  Pure randomness hands out dead or useless
+   sets far too often; instead a small random pool is scored against the live
+   board and the best candidate wins.  The pool keeps runs varied, and a piece
+   that fits nowhere can still slip through, so the game is easier — not solved.
+   Turn ASSIST.on off to fall back to the original pure-random behaviour. */
+const ASSIST = {
+  on:true,
+  pool:5,          // candidates considered per tray slot
+  chance:.75,      // share of slots that are considered at all — the rest stay luck
+  jitter:7,        // random slack so the "best" candidate is not always chosen
+  calmUntil:.30,   // below this fill the helper only skips shapes that fit nowhere
+  crowdedAt:.62,   // at this fill the helper runs at full strength
+  fitBonus:2,      // per available placement (capped)
+  lineBonus:14,    // reward for a shape that could finish a row/column now
+  smallBonus:10    // per missing cell — small rescue shapes while crowded
+};
+
+function boardFill(){
+  let used = 0;
+  for(let r=0;r<N;r++) for(let c=0;c<N;c++) if(board[r][c]) used++;
+  return used/(N*N);
+}
+// how many rows/cols this exact placement would complete (only touched lines)
+function linesCompletedBy(p, row, col){
+  const rows = new Set(), cols = new Set(), occ = new Set();
+  for(const [dr,dc] of p.cells){
+    const r = row+dr, c = col+dc;
+    rows.add(r); cols.add(c); occ.add(r+','+c);
   }
-  return [randomPiece(), randomPiece(), randomPiece()];
+  let lines = 0;
+  for(const r of rows){
+    let ok = true;
+    for(let c=0;c<N;c++) if(!board[r][c] && !occ.has(r+','+c)){ ok = false; break; }
+    if(ok) lines++;
+  }
+  for(const c of cols){
+    let ok = true;
+    for(let r=0;r<N;r++) if(!board[r][c] && !occ.has(r+','+c)){ ok = false; break; }
+    if(ok) lines++;
+  }
+  return lines;
+}
+/* The help ramps in with the board: on an open board every shape that fits
+   anywhere scores the same, so early play stays pure luck; as the board fills
+   up, placement options, line finishers and small rescue shapes start to win. */
+function assistScore(p, fill){
+  let fits = 0, bestLines = 0;
+  for(let r=0;r<=N-p.h;r++) for(let c=0;c<=N-p.w;c++){
+    if(!canPlace(p,r,c)) continue;
+    fits++;
+    const l = linesCompletedBy(p,r,c);
+    if(l > bestLines) bestLines = l;
+  }
+  if(!fits) return -1000;                                   // dead shape, always last
+  const span = Math.max(.01, ASSIST.crowdedAt - ASSIST.calmUntil);
+  const t = clamp((fill - ASSIST.calmUntil)/span, 0, 1);    // 0 = calm, 1 = crowded
+  if(t <= 0) return 0;
+  return t * (Math.min(fits,14)*ASSIST.fitBonus
+            + bestLines*ASSIST.lineBonus
+            + (5 - p.cells.length)*ASSIST.smallBonus);
+}
+function helpfulPiece(fill){
+  // most slots get a considered piece; the rest stay pure luck so a run can
+  // still go wrong — the helper makes survival easier, never automatic
+  if(Math.random() > ASSIST.chance) return randomPiece();
+  let best = null, bestScore = -1e9;
+  for(let i=0;i<ASSIST.pool;i++){
+    const p = randomPiece();
+    const sc = assistScore(p, fill) + rnd(0, ASSIST.jitter);
+    if(sc > bestScore){ bestScore = sc; best = p; }
+  }
+  return best || randomPiece();
+}
+function newPieceSet(){
+  if(!ASSIST.on){
+    for(let attempt=0; attempt<50; attempt++){
+      const set = [randomPiece(), randomPiece(), randomPiece()];
+      if(set.some(p=>canFitAnywhere(p))) return set;
+    }
+    return [randomPiece(), randomPiece(), randomPiece()];
+  }
+  const fill = boardFill();
+  const set = [helpfulPiece(fill), helpfulPiece(fill), helpfulPiece(fill)];
+  // never hand out three dead pieces at once
+  for(let attempt=0; attempt<12 && !set.some(p=>canFitAnywhere(p)); attempt++){
+    set[attempt%3] = helpfulPiece(fill);
+  }
+  return set;
 }
 
 /* =========================================================
@@ -1656,10 +2095,15 @@ function renderTray(animate){
     const bs = st*0.9;
     const wrap = document.createElement('div');
     wrap.className = 'pieceWrap bob' + (animate?' enter':'');
-    wrap.style.animationDelay = (i*(animate?70:400))+'ms';
+    // each slot floats at its own speed, and a negative delay drops it into the
+    // middle of the cycle so the three pieces are never in sync or ever still
+    wrap.style.setProperty('--bobDur', (2.9 + i*0.35).toFixed(2)+'s');
+    wrap.style.animationDelay = (i*(animate?42:0))+'ms';
     if(animate){
-      // drop the entrance class afterwards so the idle bob can take over
-      setTimeout(()=>{ wrap.classList.remove('enter'); wrap.style.animationDelay = (i*400)+'ms'; }, 520 + i*70);
+      // drop the entrance class afterwards so the idle float can take over
+      setTimeout(()=>{ wrap.classList.remove('enter'); wrap.style.animationDelay = (-0.7 - i*0.9).toFixed(2)+'s'; }, 380 + i*42);
+    }else{
+      wrap.style.animationDelay = (-0.7 - i*0.9).toFixed(2)+'s';
     }
     wrap.style.width  = (p.w*st)+'px';
     wrap.style.height = (p.h*st)+'px';
@@ -1806,14 +2250,14 @@ function onPointerUp(e){
     const mid  = 'translate3d('+((d.x+d.origin.x*2)/3)+'px,'+((d.y+d.origin.y*2)/3-10)+'px,0) rotate(0deg) scale('+(d.trayRatio*1.12)+')';
     const back = d.el.animate(
       [{transform:from, opacity:1},{transform:mid, opacity:1, offset:.55},{transform:home, opacity:.9}],
-      {duration:340, easing:'cubic-bezier(.35,1.25,.5,1)'}
+      {duration:250, easing:'cubic-bezier(.35,1.25,.5,1)'}
     );
     const done = ()=>{
       if(d.el.parentNode) d.el.remove();
       if(d.slotEl){ d.slotEl.classList.remove('taken'); d.slotEl.classList.add('bob'); }
     };
     back.onfinish = done; back.oncancel = done;
-    setTimeout(done, 420);             // belt & braces if animations are frozen
+    setTimeout(done, 320);             // belt & braces if animations are frozen
   }
 }
 
@@ -1825,30 +2269,27 @@ function paint(){
 }
 
 let rafId = 0, lastFrame = 0;
+// How hard the rendered piece chases the finger each frame (1 = instant).
+// High on purpose: the piece must never feel magnetised anywhere but the finger.
+const DRAG_FOLLOW = .92;
 function tick(t){
   const dt = clamp((t-lastFrame)/(1000/60),.25,3);
-  const follow = 1-Math.pow(1-.42,dt);
+  const follow = 1-Math.pow(1-DRAG_FOLLOW,dt);
   lastFrame = t;
   if(dragging){
     const d = dragging;
     if(d.pending){moveTo(d.pending.x,d.pending.y);d.pending=null;}
-    // magnetic pull toward the snapped cell when the drop is legal
-    let tx = d.tx, ty = d.ty;
-    if(d.valid){
-      const ib = d.boardRect;
-      tx += (ib.left + d.col*cellStride + gap/2 - tx)*0.42;
-      ty += (ib.top  + d.row*cellStride + gap/2 - ty)*0.42;
-    }
-    const nx = d.x + (tx-d.x)*follow;
-    const ny = d.y + (ty-d.y)*follow;
+    // the piece tracks the finger only — snapping to the grid happens on release
+    const nx = d.x + (d.tx-d.x)*follow;
+    const ny = d.y + (d.ty-d.y)*follow;
     const dx = nx-d.x, dy = ny-d.y;
     d.x = nx; d.y = ny;
-    // velocity-driven squash / lean — the jelly leans into the movement
-    d.vx += (dx/dt - d.vx)*(1-Math.pow(.65,dt));
-    d.vy += (dy/dt - d.vy)*(1-Math.pow(.65,dt));
-    const stretch = clamp(Math.abs(d.vx)*0.011, 0, 0.11);
-    const vstr    = clamp(Math.abs(d.vy)*0.011, 0, 0.10);
-    d.rot += (clamp(d.vx*0.38, -10, 10) - d.rot)*(1-Math.pow(.82,dt));
+    // velocity-driven squash / lean — gentle enough to never read as lag
+    d.vx += (dx/dt - d.vx)*(1-Math.pow(.55,dt));
+    d.vy += (dy/dt - d.vy)*(1-Math.pow(.55,dt));
+    const stretch = clamp(Math.abs(d.vx)*0.006, 0, 0.055);
+    const vstr    = clamp(Math.abs(d.vy)*0.006, 0, 0.05);
+    d.rot += (clamp(d.vx*0.16, -4.5, 4.5) - d.rot)*(1-Math.pow(.72,dt));
     // pickup pop spring: 0.92 -> overshoot 1.08 -> settle 1.05
     for(let remaining=dt;remaining>0;){const step=Math.min(.5,remaining);
       d.scaleV += (1.05-d.scale)*.32*step; d.scaleV *= Math.pow(.60,step);
@@ -1863,28 +2304,41 @@ function tick(t){
 }
 
 /* ---------- ghost preview ---------- */
-let ghostEls = [], litCells = [];
+// Ghost tiles are pooled: moveTo() only calls updateGhost() when the row,
+// column or validity actually changes, and even then the same handful of
+// elements are re-used instead of being destroyed and rebuilt.
+let ghostEls = [], ghostUsed = 0, litCells = [];
 function clearGhost(){
-  ghostEls.forEach(g=>g.remove()); ghostEls = [];
+  for(let i=0;i<ghostUsed;i++) ghostEls[i].style.display = 'none';
+  ghostUsed = 0;
   litCells.forEach(c=>c.classList.remove('willclear')); litCells = [];
+}
+function ghostTile(i){
+  let g = ghostEls[i];
+  if(!g){ g = document.createElement('div'); g.className = 'ghost'; ghostEls[i] = g; }
+  if(g.parentNode !== innerEl) innerEl.appendChild(g);   // resetGame() clears the board
+  return g;
 }
 function updateGhost(){
   const d = dragging; if(!d) return;
-  clearGhost();
   const p = d.piece;
   const bad = !d.valid;
+  const cls = 'ghost ' + (bad ? 'bad' : 'tint c-'+p.color);
+  let used = 0;
   for(const [dr,dc] of p.cells){
     const r = d.row+dr, c = d.col+dc;
     if(r<0||r>=N||c<0||c>=N) continue;
-    const g = document.createElement('div');
-    g.className = 'ghost ' + (bad ? 'bad' : 'tint c-'+p.color);
+    const g = ghostTile(used++);
+    if(g.className !== cls) g.className = cls;
+    g.style.display = '';
     g.style.left = (c*cellStride + gap/2)+'px';
     g.style.top  = (r*cellStride + gap/2)+'px';
     g.style.width = blockSize+'px';
     g.style.height = blockSize+'px';
-    innerEl.appendChild(g);
-    ghostEls.push(g);
   }
+  for(let i=used;i<ghostUsed;i++) ghostEls[i].style.display = 'none';
+  ghostUsed = used;
+  const lit = [];
   if(!bad){
     // preview which lines would pop
     const occ = new Set();
@@ -1892,13 +2346,17 @@ function updateGhost(){
     const full = (r,c)=> !!board[r][c] || occ.has(r+','+c);
     for(let r=0;r<N;r++){
       let ok=true; for(let c=0;c<N;c++) if(!full(r,c)){ok=false;break;}
-      if(ok) for(let c=0;c<N;c++){ cellDivs[r][c].classList.add('willclear'); litCells.push(cellDivs[r][c]); }
+      if(ok) for(let c=0;c<N;c++) lit.push(cellDivs[r][c]);
     }
     for(let c=0;c<N;c++){
       let ok=true; for(let r=0;r<N;r++) if(!full(r,c)){ok=false;break;}
-      if(ok) for(let r=0;r<N;r++){ cellDivs[r][c].classList.add('willclear'); litCells.push(cellDivs[r][c]); }
+      if(ok) for(let r=0;r<N;r++) lit.push(cellDivs[r][c]);
     }
   }
+  // only touch the cells whose highlight actually changed
+  for(const c of litCells) if(lit.indexOf(c) < 0) c.classList.remove('willclear');
+  for(const c of lit) c.classList.add('willclear');
+  litCells = lit;
 }
 
 /* =========================================================
@@ -1920,24 +2378,25 @@ function placePiece(slot, row, col){
     board[r][c] = {color:p.color, star};
     const el = makeBlock(p.color, star, blockSize);
     posBlock(el,r,c);
-    el.style.animationDelay = (i*30)+'ms';
+    el.style.animationDelay = (i*16)+'ms';
     el.classList.add('landing');
     el.addEventListener('animationend', ()=>el.classList.remove('landing'), {once:true});
     innerEl.appendChild(el);
     blockEls[r][c] = el;
-    // staggered pops + a spark per block
+    // staggered plops + a small puff squeezed out from under each block
     later(()=>{
       playPlaceSound(n, i);
       const pt = cellPage(r,c);
-      spawnParticles(pt.x, pt.y, {
-        count:3, colors:[colorOf(p.color,'lt'), '#ffffff'],
-        speed:[20,52], size:[3,6], dur:[350,520], shape:'p-round'
+      spawnParticles(pt.x, pt.y + blockSize*0.3, {
+        count:fxCount(3), colors:[colorOf(p.color,'lt'), colorOf(p.color,'bs'), '#ffffff'],
+        speed:[26,64], size:[3,6], dur:[300,470], shape:'p-round',
+        gravity:40, spin:90, aim:Math.PI/2, spread:Math.PI*0.62
       });
-    }, i*32);
+    }, i*18);
   });
 
   if(n>=4){
-    later(()=>{ playJellyBounce(); boardImpact(Math.min(n,6)); }, n*32);
+    later(()=>{ playJellyBounce(); boardImpact(Math.min(n,6)); }, n*18);
   }else{
     boardImpact(n*0.55);
   }
@@ -1949,14 +2408,16 @@ function placePiece(slot, row, col){
   for(let r=0;r<N;r++){ let ok=true; for(let c=0;c<N;c++) if(!board[r][c]){ok=false;break;} if(ok) rows.push(r); }
   for(let c=0;c<N;c++){ let ok=true; for(let r=0;r<N;r++) if(!board[r][c]){ok=false;break;} if(ok) cols.push(c); }
 
-  const delay = n*32 + 90;
-  later(()=>{ resolving = false; }, delay + (rows.length+cols.length ? 520 : 140));
+  const delay = n*18 + 55;
   if(rows.length + cols.length > 0){
     combo++;
+    // clearLines() empties those cells the moment it runs and unlocks the board
+    // itself, so the pops keep playing while the player picks the next piece
     later(()=>clearLines(rows, cols), delay);
   }else{
     combo = 0;
     updateCombo();
+    later(()=>{ resolving = false; }, delay);
   }
 
   // refill when the tray is empty
@@ -1964,10 +2425,10 @@ function placePiece(slot, row, col){
     later(()=>{
       pieces = newPieceSet();
       renderTray(true);
-      later(checkGameOver, 260);
-    }, delay + (rows.length+cols.length ? 520 : 140));
+      later(checkGameOver, 180);
+    }, delay + (rows.length+cols.length ? 330 : 80));
   }else{
-    later(checkGameOver, delay + (rows.length+cols.length ? 620 : 200));
+    later(checkGameOver, delay + (rows.length+cols.length ? 400 : 130));
   }
 }
 
@@ -1991,8 +2452,8 @@ function cellPage(r,c){
 function clearLines(rows, cols){
   const lines = rows.length + cols.length;
   const set = new Map();   // "r,c" -> {r,c,order}
-  rows.forEach((r,li)=>{ for(let c=0;c<N;c++) addCell(r,c, li*70 + c*44); });
-  cols.forEach((c,li)=>{ for(let r=0;r<N;r++) addCell(r,c, (rows.length+li)*70 + r*44); });
+  rows.forEach((r,li)=>{ for(let c=0;c<N;c++) addCell(r,c, li*42 + c*26); });
+  cols.forEach((c,li)=>{ for(let r=0;r<N;r++) addCell(r,c, (rows.length+li)*42 + r*26); });
   function addCell(r,c,d){
     const k = r+','+c;
     if(!set.has(k) || set.get(k).d > d) set.set(k,{r,c,d});
@@ -2004,7 +2465,11 @@ function clearLines(rows, cols){
   });
 
   playClearIntro(lines); haptics.fire('clear');
-  if(stars>0){ later(playStarSound, 180); mgAddStars(stars); }
+  // the opening thump lands with the board, before the first block pops
+  boardImpact(1.6 + lines*1.1);
+  // Star blocks feed the meter (see addStarProgress below) — the meter is the
+  // only thing that mints progression stars, so there is one currency, not two.
+  if(stars>0) later(playStarSound, 180);
   if(combo>=2) later(()=>playComboSound(combo), 210);
 
   // score
@@ -2029,19 +2494,31 @@ function clearLines(rows, cols){
       const cc = board[r] ? null : null;
       const pt = cellPage(r,c);
       const col = el.classList.contains('starB') ? 'star' : (el.className.match(/c-(\w+)/)||[])[1];
+      // the block bursts into gummy chunks…
       spawnParticles(pt.x, pt.y, {
-        count: 5, colors:[colorOf(col,'bs'), colorOf(col,'lt'), '#ffffff'],
-        speed:[60,150], size:[4,9], dur:[420,760], shape:'p-round', gravity:170
+        count: fxCount(2), colors:[colorOf(col,'bs'), colorOf(col,'lt'), '#ffffff'],
+        speed:[70,165], size:[4,9], dur:[380,660], shape:'p-sq', gravity:190, spin:260
+      });
+      // …and a few soft droplets that land and squash
+      spawnParticles(pt.x, pt.y, {
+        count: fxCount(2), colors:[colorOf(col,'lt'), '#ffffff'],
+        speed:[45,120], size:[3,7], dur:[420,700], shape:'p-drop',
+        gravity:210, spin:120, bounce:true
       });
       if(el.classList.contains('starB')){
         spawnParticles(pt.x, pt.y, {
-          count: 8, colors:['#ffe066','#fff6c2','#ffc531'],
-          speed:[80,190], size:[5,11], dur:[520,900], shape:'p-star', gravity:120
+          count: fxCount(5), colors:['#ffe066','#fff6c2','#ffc531'],
+          speed:[85,200], size:[5,11], dur:[520,900], shape:'p-star', gravity:120, spin:300
         });
       }
-      later(()=>el.remove(), 470);
+      later(()=>el.remove(), 320);
     }, d);
   });
+
+  // Every cleared cell was nulled in the loop above, so the board data is
+  // already consistent: hand control back now and let the pops, particles and
+  // score text finish on their own. This is what keeps the loop feeling fluid.
+  resolving = false;
 
   // center of the clear for floating text
   let sx=0, sy=0;
@@ -2049,28 +2526,44 @@ function clearLines(rows, cols){
   sx/=cells.length; sy/=cells.length;
 
   const maxD = Math.max(...cells.map(x=>x.d));
+  // How loud the payoff is: one clear is nice, several at once is an event, and
+  // a running combo pushes it further. Capped so it never swamps the board.
+  const heat = lines + Math.max(0, combo-1);
   later(()=>{
-    boardImpact(lines*1.6);
+    boardImpact(2 + lines*1.9 + Math.min(combo,5)*0.7);
     addScore(gained + starBonus, null);
     const msg = comboMessage(combo, lines);
-    floatText(sx, sy, msg, '+'+(gained), combo>=3);
+    const size = heat>=5 ? ' huge' : (heat>=3 ? ' big' : '');
+    floatText(sx, sy, msg, '+'+(gained), combo>=3, size);
     if(starBonus>0){
-      later(()=>floatText(sx, sy-46, 'STAR BONUS', '+'+starBonus, true), 260);
+      later(()=>floatText(sx, sy-46, 'STAR BONUS', '+'+starBonus, true), 200);
     }
-    // combo shower
+    // a splash from the middle of the clear, sized by how good it was
+    spawnParticles(sx, sy, {
+      count: fxCount(3 + lines*3), colors:['#ffd6f0','#c7f0ff','#fff3b0','#d9ffc2','#ffffff'],
+      speed:[90,215], size:[5,11], dur:[470,810], shape:'p-drop',
+      gravity:150, spin:220, bounce:true
+    });
+    // combo shower — same budget guard, just a denser feel
     if(combo>=2){
-      for(let i=0;i<Math.min(combo*4,20);i++){
+      const bursts = Math.min(3 + combo*3, 16);
+      for(let i=0;i<bursts;i++){
         later(()=>{
-          spawnParticles(sx+rnd(-70,70), sy+rnd(-50,50), {
+          spawnParticles(sx+rnd(-74,74), sy+rnd(-54,54), {
             count:2, colors:['#ffd6f0','#c7f0ff','#fff3b0','#d9ffc2'],
-            speed:[60,150], size:[4,9], dur:[500,850], shape:'p-sq', gravity:140
+            speed:[70,160], size:[4,9], dur:[460,800], shape:'p-sq', gravity:140, spin:280
           });
-        }, i*22);
+        }, i*14);
       }
+    }
+    // the only screen-wide touch: a soft warm bloom on a genuinely big combo
+    if(heat>=5 && !reducedMotion.matches){
+      const fl = $('#feverFlash');
+      fl.classList.remove('soft'); void fl.offsetWidth; fl.classList.add('soft');
     }
     updateCombo();
     addStarProgress(stars*1 + lines*0.2);
-  }, Math.min(maxD+120, 480));
+  }, Math.min(maxD+70, 280));
 }
 
 function comboMessage(c, lines){
@@ -2094,6 +2587,19 @@ function addScore(v){
   void $('#scoreCloud').offsetWidth;
   $('#scoreCloud').classList.add('bounce');
   updateScore(false);
+  syncBest();
+}
+// The header keeps a small BEST line; it is promoted the moment it is beaten
+// and still uses the same localStorage key the game over screen reads.
+function syncBest(){
+  const line = $('#bestLine');
+  if(score > best){
+    best = score;
+    store('jellyblocks_best', String(best));
+    if(line){ line.classList.remove('new'); void line.offsetWidth; line.classList.add('new'); }
+  }
+  const el = $('#bestVal');
+  if(el) el.textContent = fmt(best);
 }
 let scoreSafety = 0;
 function updateScore(instant){
@@ -2105,12 +2611,12 @@ function updateScore(instant){
   clearTimeout(scoreSafety);
   scoreSafety = later(()=>{
     if(displayScore !== score){ displayScore = score; $('#scoreVal').textContent = fmt(score); }
-  }, 900);
+  }, 600);
   if(scoreTween) return;
   const step = ()=>{
     const diff = score - displayScore;
     if(Math.abs(diff) < 1){ displayScore = score; $('#scoreVal').textContent = fmt(score); scoreTween = 0; return; }
-    displayScore += diff*0.18 + Math.sign(diff);
+    displayScore += diff*0.30 + Math.sign(diff);
     $('#scoreVal').textContent = fmt(Math.round(displayScore));
     scoreTween = requestAnimationFrame(step);
   };
@@ -2138,6 +2644,21 @@ function addStarProgress(amount){
     later(starFever, 320);
   }
 }
+/* The payoff for filling the meter: the big star pops and settles, a halo
+   sweeps the meter, "+1" drifts up and a few sparks fly. Transform/opacity
+   only, one shot, and it never covers the board. */
+function starEarnFx(){
+  const meter = $('#starMeter'), big = $('#starBig'), plus = $('#starPlus');
+  meter.classList.remove('earn'); void meter.offsetWidth; meter.classList.add('earn');
+  big.classList.remove('wig','earn'); void big.offsetWidth; big.classList.add('earn');
+  plus.classList.remove('go'); void plus.offsetWidth; plus.classList.add('go');
+  later(()=>playPopSound(1760), 130);   // lands on the squash, with the fever chime
+  const r = big.getBoundingClientRect();
+  spawnParticles(r.left+r.width/2, r.top+r.height/2, {
+    count:6, colors:['#fff3a0','#ffd23f','#ffffff'],
+    speed:[55,130], size:[4,9], dur:[420,720], shape:'p-star'
+  });
+}
 function updateStarMeter(animate){
   const pct = clamp(starProgress/starGoal,0,1)*100;
   $('#starFill').style.width = pct+'%';
@@ -2162,7 +2683,8 @@ function updateStarMeter(animate){
 }
 function starFever(){
   playFeverSound(); haptics.fire('success');
-  mgAddStars(2);
+  mgAddStars(1);                       // one full meter == one progression star
+  starEarnFx();
   const f = $('#feverFlash'), t = $('#feverText');
   f.classList.remove('go'); void f.offsetWidth; f.classList.add('go');
   t.classList.remove('go'); void t.offsetWidth; t.classList.add('go');
@@ -2194,20 +2716,33 @@ function spawnParticles(x, y, o){
     const s = rnd(o.size?o.size[0]:4, o.size?o.size[1]:8);
     el.style.width = s+'px'; el.style.height = s+'px';
     el.style.background = pick(o.colors||['#fff']);
-    el.style.boxShadow = 'inset 0 1px 1px #ffffffb0';
+    el.style.boxShadow = 'inset 0 1px 1px #ffffffb0, inset 0 -1px 2px rgba(0,0,0,.14)';
     fxEl.appendChild(el);
     activeParticles++;
-    const ang = rnd(0, Math.PI*2);
+    // a cone when the caller asks for one (o.aim + o.spread), otherwise all round
+    const ang = o.aim==null ? rnd(0, Math.PI*2)
+                            : o.aim + rnd(-(o.spread==null?Math.PI:o.spread), (o.spread==null?Math.PI:o.spread));
     const sp  = rnd(o.speed?o.speed[0]:40, o.speed?o.speed[1]:90);
     const dur = rnd(o.dur?o.dur[0]:400, o.dur?o.dur[1]:700);
     const g   = o.gravity||90;
+    const spin = rnd(-1,1)*(o.spin==null?150:o.spin);   // every crumb tumbles differently
     const mx = x + Math.cos(ang)*sp*0.55, my = y + Math.sin(ang)*sp*0.55 - g*0.1;
     const ex = x + Math.cos(ang)*sp,      ey = y + Math.sin(ang)*sp + g*0.55;
-    const a = el.animate([
-      {transform:`translate(${x-s/2}px,${y-s/2}px) scale(.4)`, opacity:1},
-      {transform:`translate(${mx-s/2}px,${my-s/2}px) scale(1.15)`, opacity:1, offset:.35},
-      {transform:`translate(${ex-s/2}px,${ey-s/2}px) scale(.15)`, opacity:0}
-    ], {duration:dur, easing:'cubic-bezier(.18,.72,.36,1)'});
+    const T = (px,py,sx,sy,rot)=>'translate('+(px-s/2)+'px,'+(py-s/2)+'px) rotate('+rot+'deg) scale('+sx+','+sy+')';
+    const frames = o.bounce
+      ? [ // one soft landing squash before it melts away
+          {transform:T(x, y, .45,.45, 0), opacity:1},
+          {transform:T(mx, my, 1.16,.92, spin*.35), opacity:1, offset:.32},
+          {transform:T(ex, ey, 1.3,.62, spin*.7), opacity:1, offset:.62},
+          {transform:T(ex+(ex-x)*.14, ey-g*.16, .88,1.14, spin*.85), opacity:.85, offset:.8},
+          {transform:T(ex+(ex-x)*.22, ey+g*.06, .12,.12, spin), opacity:0}
+        ]
+      : [ // stretch along the flight, then shrink out
+          {transform:T(x, y, .42,.42, 0), opacity:1},
+          {transform:T(mx, my, 1.2,.88, spin*.4), opacity:1, offset:.35},
+          {transform:T(ex, ey, .14,.14, spin), opacity:0}
+        ];
+    const a = el.animate(frames, {duration:dur, easing:'cubic-bezier(.18,.72,.36,1)'});
     let dead = false;
     const kill = ()=>{
       if(dead) return; dead = true;
@@ -2218,9 +2753,9 @@ function spawnParticles(x, y, o){
   }
 }
 
-function floatText(x, y, msg, pts, gold){
+function floatText(x, y, msg, pts, gold, size){
   const el = document.createElement('div');
-  el.className = 'floatText' + (gold?' gold':'');
+  el.className = 'floatText' + (gold?' gold':'') + (size||'');
   el.innerHTML = '<div class="m">'+msg+'</div>' + (pts?'<div class="p">'+pts+'</div>':'');
   fxEl.appendChild(el);
   const w = el.offsetWidth, h = el.offsetHeight;
@@ -2247,7 +2782,7 @@ function boardImpact(strength){
     {transform:`translateY(${dy}px) scale(${1+s*0.0022},${1-s*0.0035})`, offset:.22},
     {transform:`translateY(${-dy*0.35}px) scale(${1-s*0.0016},${1+s*0.0026})`, offset:.5},
     {transform:'translateY(0) scale(1,1)'}
-  ], {duration:300+s*26, easing:'cubic-bezier(.3,1.2,.5,1)'});
+  ], {duration:250+s*18, easing:'cubic-bezier(.3,1.2,.5,1)'});
 }
 
 /* =========================================================
@@ -2263,11 +2798,12 @@ function checkGameOver(){
   // let any in-flight clears finish scoring first, then lock in the final number
   later(()=>{
     if(score > best){ best = score; store('jellyblocks_best', String(best)); }
+    syncBest();
     updateScore(true);
     $('#finalScore').textContent = fmt(score);
     $('#bestScore').textContent = fmt(best);
     $('#overOverlay').classList.add('show');
-  }, 620);
+  }, 420);
 }
 
 /* =========================================================
@@ -2319,7 +2855,13 @@ document.addEventListener('contextmenu', e=>{
   if(e.target.closest('#app')) e.preventDefault();
 });
 document.addEventListener('dragstart', e=>e.preventDefault());
-window.addEventListener('pointerdown', ()=>{ A.init(); }, {once:false});
+// Mobile Safari only lets audio start from a real gesture and can drop the
+// context back to "suspended" at any time, so every gesture re-arms it.
+// A.init() is idempotent: one context, then an explicit resume + silent kick.
+const unlockAudio = ()=>{ A.init(); };
+['pointerdown','touchstart','touchend','mousedown','click','keydown'].forEach(type=>{
+  window.addEventListener(type, unlockAudio, {passive:true, capture:true});
+});
 window.addEventListener('resize', ()=>{ layout(); });
 window.addEventListener('orientationchange', ()=>setTimeout(layout,250));
 document.addEventListener('visibilitychange', ()=>{
@@ -2343,13 +2885,34 @@ document.addEventListener('visibilitychange', ()=>{
    ========================================================= */
 
 /* ---- artwork definition (swap ART + #mrArtSrc for another painting) ---- */
-const MR_ART = { id:'monalisa', w:300, h:400, name:'MONA LISA', src:'mrArtSrc' };
-const MR_TIME = 25;          // seconds on the clock
+const MR_PALETTES = {
+  monalisa:['#e8c69b','#8d7550','#33291c','#95a184','#c6bd92','#4c3e2b','#fff3d0'],
+  starry:  ['#f4d76b','#2a4a86','#12224a','#e8e3b0','#1a1206','#6f92d4','#fff3b8'],
+  wave:    ['#eaf4f8','#1d4f77','#2e7fa8','#0e2b45','#d9c9a3','#ffffff','#7fb6d4']
+};
+// The live round's artwork; startMasterpieceRush() swaps these fields per painting.
+const MR_ART = { id:'monalisa', w:300, h:400, name:'MONA LISA', src:'mrArtSrc',
+                 palette:MR_PALETTES.monalisa };
+const MR_TIME = 30;          // seconds on the clock (raised with the busier Boo)
 const MR_REWARD = 500;
-const MR_SAFE_AT = 6;        // 6 of 7 placed — only then is Jelly Boo out of time
-const MR_FIRST_ATTACK = 4200;
-const MR_RETRY = [4800, 6200];
-const MR_MAX_ATTACKS = 6;
+const MR_SAFE_AT = 6;        // 6 of 7 placed — one move from winning is untouchable
+const MR_FIRST_ATTACK = 1700;
+const MR_RETRY = [1700, 3000];      // upper end early, lower end once he warms up
+const MR_MAX_ATTACKS = 18;
+/* Fairness rails, so "more active" never becomes "unwinnable":
+   - nothing is ever stolen once MR_SAFE_AT pieces are down,
+   - nothing is stolen inside the last MR_CALM_LEFT seconds,
+   - two pieces only go when the player is comfortably ahead and has time,
+   - MR_STEAL_GAP is a hard cooldown between two successful sabotages. */
+const MR_CALM_LEFT = 5;
+const MR_DOUBLE_AT = 4;
+const MR_DOUBLE_TIME = 12;
+const MR_STEAL_GAP = 1800;
+/* The rule that makes him beatable no matter how busy he gets: he may only
+   steal again once the player has put pieces back since the last theft, so
+   every theft cycle still ends with the player further ahead than before. */
+const MR_STEAL_TAX = 1;             // placements owed after a normal steal
+const MR_STEAL_TAX_LATE = 2;        // …and once the picture is nearly done
 const MR_PAD = 4;            // svg padding so the jelly rim is never clipped
 
 /* Boundary curves of the puzzle.  Every internal edge is shared by exactly
@@ -2384,6 +2947,7 @@ const MR_SHAPES = [
 ];
 
 const mrOverlay = $('#mrOverlay'), mrFrameEl = $('#mrFrame'), mrCanvasEl = $('#mrCanvas');
+const mrGhostEl = $('#mrOverlay .mr-ghost'), mrSlotsEl = $('#mrOverlay .mr-slots');
 const mrTrayEl = $('#mrTray'), mrPiecesEl = $('#mrPieces'), mrFxEl = $('#mrFx');
 const mrStageEl = $('#mrStage'), mrBooWrap = $('#mrBooWrap'), mrBooEl = $('#mrBoo');
 const mrBannerEl = $('#mrBanner'), mrSplatEl = $('#mrSplat'), mrTimerEl = $('#mrTimer');
@@ -2394,7 +2958,8 @@ const masterpieceRushState = {
   built:false, pieces:[], artScale:1, trayK:.5, snapR:50,
   drag:null, raf:0, lastFrame:0, pointerId:null,
   wasPaused:false, endAt:0, remain:MR_TIME, timerId:0, lastBeep:99,
-  booBusy:false, booPos:{x:0,y:0}, attacks:0, won:false
+  booBusy:false, booPos:{x:0,y:0}, attacks:0, won:false, lastSteal:-1e9,
+  placedSinceSteal:99
 };
 
 /* ---- timers kept apart from the main game's gameTimers ---- */
@@ -2427,6 +2992,25 @@ function mrBoing(){ playInvalidSound(); }
 function mrHopSound(){ tone({f:300, f2:520, dur:.09, g:.07, atk:.005}); }
 function mrSabotageSound(){ playJellyBounce(); noise({f:1500, g:.03, dur:.06, q:1.2}); }
 function mrSplatSound(){ playJellyBounce(); noise({f:900, g:.05, dur:.13, q:.8}); }
+// Painting breaking: a dry crack on top of a wet jelly splat, layered short.
+function mrCrackSound(){
+  noise({f:3400, g:.075, dur:.09, q:.7, type:'highpass'});     // sharp crack
+  noise({f:1500, g:.05,  dur:.16, q:.9, t:.03});               // debris tail
+  tone({f:240, f2:70, dur:.20, g:.11, atk:.004, type:'triangle'});
+  tone({f:120, f2:52, dur:.26, g:.09, atk:.006, t:.05});       // jelly wobble under it
+  noise({f:700, g:.045, dur:.19, q:.7, t:.07});                // wet splat layer
+}
+// cheeky two-note snicker when he gets away with one
+function mrGiggle(){
+  tone({f:660, f2:880, type:'triangle', dur:.07, g:.075, atk:.003, lp:3200});
+  tone({f:790, f2:1180, type:'triangle', dur:.08, g:.07, atk:.003, lp:3200, t:.085});
+  noise({f:2200, g:.012, dur:.03, q:2, t:.09});
+}
+// deflating whine when the player slips past him
+function mrWhine(){
+  tone({f:520, f2:210, type:'triangle', dur:.3, g:.09, atk:.006, lp:1500, q:.9});
+  tone({f:262, f2:132, type:'sine', dur:.24, g:.045, atk:.008, t:.05});
+}
 function mrTickSound(last){ tone({f:last ? 760 : 620, dur:.07, g:.05, atk:.004, lp:2200}); }
 
 /* ---- sparkles inside the overlay (shares the global particle budget) ---- */
@@ -2455,6 +3039,45 @@ function mrSpark(x, y, o){
       {transform:`translate(${mx-s/2}px,${my-s/2}px) scale(1.15)`, opacity:1, offset:.35},
       {transform:`translate(${ex-s/2}px,${ey-s/2}px) scale(.15)`, opacity:0}
     ], {duration:dur, easing:'cubic-bezier(.18,.72,.36,1)'});
+    let dead = false;
+    const kill = ()=>{ if(dead) return; dead = true; el.remove(); activeParticles--; };
+    a.onfinish = kill; a.oncancel = kill;
+    setTimeout(kill, dur+300);
+  }
+}
+
+/* Soft jelly droplets: they arc out of Jelly Boo, splat on an invisible floor,
+   bounce a couple of times and melt away.  Same budget guard as mrSpark(). */
+function mrGoo(x, y, o){
+  if(document.hidden || reducedMotion.matches) return;
+  const box = mrFxEl.getBoundingClientRect();
+  const px = x - box.left, py = y - box.top;
+  const count = Math.min(o.count||6, Math.max(0, FX_LIMIT-activeParticles));
+  for(let i=0;i<count;i++){
+    const el = document.createElement('div');
+    el.className = 'particle ' + (o.shape||'p-round');
+    const sz = rnd(o.size?o.size[0]:5, o.size?o.size[1]:11);
+    el.style.width = sz+'px'; el.style.height = sz+'px';
+    el.style.background = pick(o.colors||['#8fe05a']);
+    el.style.boxShadow = 'inset 0 2px 2px #ffffffc0, inset 0 -2px 3px rgba(0,0,0,.18)';
+    mrFxEl.appendChild(el);
+    activeParticles++;
+    const ang  = rnd(-Math.PI*0.88, -Math.PI*0.12);        // always thrown upwards
+    const sp   = rnd(o.speed?o.speed[0]:70, o.speed?o.speed[1]:180);
+    const dur  = rnd(o.dur?o.dur[0]:620, o.dur?o.dur[1]:980);
+    const dx   = Math.cos(ang)*sp, up = Math.sin(ang)*sp;  // up is negative
+    const floor = (o.drop==null ? rnd(50,110) : o.drop);
+    const h2 = Math.abs(up)*0.26, h3 = Math.abs(up)*0.10;
+    const P = (fx,fy,sx,sy)=>'translate('+(px+dx*fx-sz/2)+'px,'+(py+fy-sz/2)+'px) scale('+sx+','+sy+')';
+    const a = el.animate([
+      {transform:P(0, 0, .55,.55), opacity:1},
+      {transform:P(.30, up*0.55, .88,1.16), opacity:1, offset:.20},
+      {transform:P(.58, floor, 1.42,.62), opacity:1, offset:.44},   // first splat
+      {transform:P(.74, floor-h2, .90,1.12), opacity:1, offset:.62},
+      {transform:P(.88, floor+4, 1.34,.68), opacity:.9, offset:.80}, // second splat
+      {transform:P(.95, floor+4-h3, .95,1.05), opacity:.7, offset:.90},
+      {transform:P(1, floor+8, .12,.12), opacity:0}
+    ], {duration:dur, easing:'cubic-bezier(.3,.7,.5,1)'});
     let dead = false;
     const kill = ()=>{ if(dead) return; dead = true; el.remove(); activeParticles--; };
     a.onfinish = kill; a.oncancel = kill;
@@ -2519,6 +3142,8 @@ function createMasterpiecePieces(){
       placed:false, homeX:0, homeY:0, slotX:0, slotY:0, ew:0, eh:0
     };
   });
+  // the cut lines stay behind after the break, so the empty slots read clearly
+  mrSlotsEl.innerHTML = MR_SHAPES.map(sh=>'<path d="'+mrPathOf(sh)+'"/>').join('');
   st.built = true;
 }
 
@@ -2609,8 +3234,22 @@ function mrApplyPieces(instant, stagger){
 /* =========================================================
    jelly boo
    ========================================================= */
+const MR_BOO_MOTION = ['land','jiggle','aim','cheer','deflate'];
+const MR_BOO_ANIM = {mrBooLand:'land', mrBooJiggle:'jiggle', mrBooAim:'aim',
+                     mrBooCheer:'cheer', mrBooDeflate:'deflate'};
+mrBooEl.addEventListener('animationend', e=>{
+  const cls = MR_BOO_ANIM[e.animationName];
+  if(cls) mrBooEl.classList.remove(cls);      // hand the body back to the idle loop
+});
+function mrBooPlay(cls){
+  if(reducedMotion.matches) return;
+  mrBooEl.classList.remove('land','jiggle','aim','cheer','deflate');
+  void mrBooEl.offsetWidth;                   // restart from the top, every time
+  mrBooEl.classList.add(cls);
+}
 function mrBooMood(m){
-  mrBooEl.className = m || '';
+  const keep = MR_BOO_MOTION.filter(c=>mrBooEl.classList.contains(c));
+  mrBooEl.className = [m||'', ...keep].filter(Boolean).join(' ');
   const puff = mrBooEl.querySelector('.mr-puff');
   if(puff) puff.textContent = m === 'm-shock' ? '!!' : '!';
 }
@@ -2639,31 +3278,63 @@ function mrHop(to, dur, hops){
   const st = masterpieceRushState;
   const from = st.booPos;
   const n = Math.max(1, hops||2);
-  const lift = reducedMotion.matches ? 0 : Math.max(10, (mrBooEl.offsetHeight||42)*0.55);
+  const soft = !reducedMotion.matches;
+  const lift = soft ? Math.max(10, (mrBooEl.offsetHeight||42)*0.72) : 0;
   const frames = [];
+  const at = (t)=>({x:from.x+(to.x-from.x)*t, y:from.y+(to.y-from.y)*t});
   for(let k=0;k<=n;k++){
-    const t = k/n;
-    frames.push({transform:'translate('+(from.x+(to.x-from.x)*t)+'px,'+(from.y+(to.y-from.y)*t)+'px)', offset:t});
+    const t = k/n, p = at(t);
+    frames.push({transform:'translate('+p.x+'px,'+p.y+'px)', offset:t});
     if(k<n){
-      const m = (k+0.5)/n;
-      frames.push({transform:'translate('+(from.x+(to.x-from.x)*m)+'px,'+(from.y+(to.y-from.y)*m-lift)+'px)', offset:m});
+      // a low crouch just after touchdown, then the airborne apex
+      const c = (k+0.18)/n, cp = at(c);
+      const m = (k+0.5)/n,  mp = at(m);
+      frames.push({transform:'translate('+cp.x+'px,'+(cp.y+lift*0.12)+'px)', offset:c});
+      frames.push({transform:'translate('+mp.x+'px,'+(mp.y-lift)+'px)', offset:m});
     }
   }
   st.booPos = {x:to.x, y:to.y};
   mrBooWrap.getAnimations().forEach(a=>a.cancel());     // never stack hops
   mrBooWrap.style.transform = 'translate('+to.x+'px,'+to.y+'px)';
-  try{ mrBooWrap.animate(frames, {duration:dur, easing:'ease-in-out'}); }catch(err){}
+  try{ mrBooWrap.animate(frames, {duration:dur, easing:'cubic-bezier(.4,0,.5,1)'}); }catch(err){}
+  // the body squashes on every touchdown and stretches at every apex, so a
+  // multi-hop trip reads as one continuous blob rather than a sliding sprite
+  if(soft){
+    const lean = clamp((to.x-from.x)*0.035, -7, 7);
+    const body = [];
+    for(let k=0;k<=n;k++){
+      const t = k/n;
+      body.push({transform:'scale(1.30,.72) rotate(0deg)', offset:t});
+      if(k<n){
+        body.push({transform:'scale(.86,1.22) rotate('+(lean*0.6).toFixed(1)+'deg)', offset:(k+0.22)/n});
+        body.push({transform:'scale(.94,1.10) rotate('+lean.toFixed(1)+'deg)',       offset:(k+0.55)/n});
+        body.push({transform:'scale(1.08,.94) rotate('+(lean*0.4).toFixed(1)+'deg)', offset:(k+0.8)/n});
+      }
+    }
+    body[body.length-1] = {transform:'scale(1.30,.72) rotate(0deg)', offset:1};
+    try{ mrBooEl.animate(body, {duration:dur, easing:'cubic-bezier(.4,0,.5,1)'}); }catch(err){}
+  }
   mrHopSound();
-  mrLater(()=>{                                          // squash on landing
-    mrBooEl.classList.remove('land'); void mrBooEl.offsetWidth; mrBooEl.classList.add('land');
-  }, dur-60);
+  mrLater(()=>{                                          // deep squash + after-wobbles
+    mrBooPlay('land');
+    if(soft){                                            // a few crumbs shake loose on impact
+      const r = mrBooEl.getBoundingClientRect();
+      mrGoo(r.left+r.width/2, r.top+r.height*0.9, {
+        count:3, colors:['#a9f07a','#7ede4a','#d8ffbd'], speed:[50,110], size:[3,6],
+        dur:[420,640], drop:rnd(16,34), shape:'p-round'
+      });
+    }
+  }, Math.max(60, dur-60));
 }
 function mrShatter(){                        // the painting bursts, then gathers in the tray
   const st = masterpieceRushState;
+  // the whole picture goes with it — from here on the pieces are the only guide
+  mrGhostEl.classList.add('gone');
+  mrSlotsEl.classList.add('on');
   const base = mrPiecesEl.getBoundingClientRect();
   const f = mrFrameEl.getBoundingClientRect();
   const cx = f.left - base.left + f.width/2, cy = f.top - base.top + f.height/2;
-  const paint = ['#e8c69b','#8d7550','#33291c','#95a184','#c6bd92','#4c3e2b','#fff3d0'];
+  const paint = MR_ART.palette;
   st.pieces.forEach((p, i)=>{
     p.placed = false;
     p.el.classList.remove('locked');
@@ -2675,9 +3346,13 @@ function mrShatter(){                        // the painting bursts, then gather
     p.el.style.transform =
       'translate('+(p.homeX+Math.cos(ang)*dist).toFixed(1)+'px,'+(p.homeY+Math.sin(ang)*dist*0.8-14).toFixed(1)+'px) '+
       'rotate('+rnd(-15,15).toFixed(1)+'deg) scale(1.07)';
-    // a few jelly crumbs shake loose from each piece
+    // real debris: dry crumbs plus soft jelly chunks that bounce and shrink
     mrSpark(base.left+px, base.top+py, {
-      count:2, colors:paint, speed:[70,160], size:[3,7], dur:[420,700], shape:'p-sq', gravity:210
+      count:3, colors:paint, speed:[80,180], size:[3,8], dur:[420,700], shape:'p-sq', gravity:210
+    });
+    mrGoo(base.left+px, base.top+py, {
+      count:3, colors:paint, speed:[80,180], size:[4,10],
+      dur:[620,960], drop:rnd(50,110), shape:'p-sq'
     });
   });
   mrLater(()=>{
@@ -2695,56 +3370,141 @@ function spawnJellyBoo(){
   mrBooWrap.getAnimations().forEach(a=>a.cancel());
   mrBooWrap.style.transform = 'translate('+h.x+'px,'+h.y+'px)';
 }
+/* 0 while the player is just getting started, 1 once they are nearly done.
+   Everything Boo does gets quicker as this climbs, so he reacts to success. */
+function mrHeat(){
+  const st = masterpieceRushState;
+  const total = st.pieces.length || 7;
+  const done = st.pieces.filter(p=>p.placed).length;
+  return clamp(done/Math.max(1,total-2), 0, 1);
+}
 function mrScheduleAttack(ms){
   const st = masterpieceRushState;
   if(st.phase !== 'play' || st.attacks >= MR_MAX_ATTACKS) return;
   mrLater(jellyBooAttack, ms);
 }
+// the gap between attempts shrinks the better the player is doing
+function mrNextGap(){
+  const heat = mrHeat();
+  const lo = MR_RETRY[0], hi = MR_RETRY[1];
+  const top = hi - (hi-lo)*heat;
+  return rint(Math.round(lo*(1-heat*0.25)), Math.round(top));
+}
+/* One place decides whether stealing is allowed at all, so every fairness rule
+   is visible at a glance and none of them can be bypassed by a code path. */
+function mrCanSteal(){
+  const st = masterpieceRushState;
+  if(st.phase !== 'play') return false;
+  const done = st.pieces.filter(p=>p.placed).length;
+  if(done === 0) return false;                             // nothing placed yet
+  if(done >= MR_SAFE_AT) return false;                     // one move from winning
+  if(st.remain <= MR_CALM_LEFT) return false;              // the last seconds are calm
+  if(performance.now() - st.lastSteal < MR_STEAL_GAP) return false;
+  // the player must have made ground since the last theft
+  const owed = done >= MR_DOUBLE_AT ? MR_STEAL_TAX_LATE : MR_STEAL_TAX;
+  if(st.placedSinceSteal < owed) return false;
+  return true;
+}
 function jellyBooAttack(){
   const st = masterpieceRushState;
   if(st.phase !== 'play' || st.booBusy) return;
   const done = st.pieces.filter(p=>p.placed).length;
-  if(done === 0){ mrScheduleAttack(2500); return; }      // nothing to steal yet
+  if(done === 0){ mrScheduleAttack(1100); return; }        // nothing to steal yet
   st.booBusy = true;
   st.attacks++;
-  const tooLate = done >= MR_SAFE_AT;                    // fairness — chase only
-  mrBooMood(tooLate ? 'm-worry' : 'm-sneak');
-  mrHop(mrBooSpot(tooLate ? 0.55 : 1), tooLate ? 620 : 780, tooLate ? 3 : 2);
+  const steal = mrCanSteal();                              // chase only when false
+  const heat = mrHeat();
+  mrBooMood(steal ? 'm-sneak' : 'm-worry');
+  // he crouches and leans first — you get a beat of warning, then he is on it
+  mrBooPlay('aim');
+  const hopDur = Math.round((steal ? 400 : 360) * (1 - heat*0.18));
   mrLater(()=>{
     if(st.phase !== 'play'){ st.booBusy = false; return; }
-    const now = st.pieces.filter(p=>p.placed).length;
-    if(!tooLate && now < MR_SAFE_AT) jellyBooSabotage();
-    else mrBooMood('m-worry');
+    mrHop(mrBooSpot(steal ? 1 : 0.55), hopDur, steal ? 2 : 3);
     mrLater(()=>{
-      if(!masterpieceRushState.active){ st.booBusy = false; return; }
-      if(st.phase === 'play'){
-        mrHop(mrBooHome(), 700, 2);
-        mrLater(()=>{
-          st.booBusy = false;
-          if(st.phase === 'play'){
-            mrBooMood('');
-            mrScheduleAttack(rint(MR_RETRY[0], MR_RETRY[1]));
-          }
-        }, 700);
-      }else{ st.booBusy = false; }
-    }, 460);
-  }, (tooLate ? 620 : 780) + 70);
+      if(st.phase !== 'play'){ st.booBusy = false; return; }
+      if(mrCanSteal()) jellyBooSabotage();                 // re-checked on arrival
+      else mrBooFoiled();                                  // the player got away with it
+      mrLater(()=>{
+        if(!masterpieceRushState.active){ st.booBusy = false; return; }
+        if(st.phase === 'play'){
+          const back = Math.round(400*(1-heat*0.2));
+          mrHop(mrBooHome(), back, 2);
+          mrLater(()=>{
+            st.booBusy = false;
+            if(st.phase === 'play'){
+              mrBooMood('');
+              mrScheduleAttack(mrNextGap());
+            }
+          }, back);
+        }else{ st.booBusy = false; }
+      }, 240);
+    }, hopDur + 40);
+  }, 200);
+}
+/* He arrived and there was nothing he was allowed to take: shock, then the air
+   goes out of him. This is the reaction that makes him fun to beat. */
+function mrBooFoiled(){
+  const st = masterpieceRushState;
+  mrBooMood('m-shock');
+  mrWhine();
+  mrBooPlay('deflate');
+  mrLater(()=>{ if(st.phase === 'play') mrBooMood('m-worry'); }, 620);
 }
 function jellyBooSabotage(){
   const st = masterpieceRushState;
   const done = st.pieces.filter(p=>p.placed);
   if(!done.length) return;
-  const p = pick(done);
-  const r = p.el.getBoundingClientRect();
-  p.placed = false;
-  p.el.classList.remove('locked');
-  mrSabotageSound();
-  mrSpark(r.left+r.width/2, r.top+r.height/2, {
-    count:5, colors:['#ffe066','#ffffff','#ffc531'],
-    speed:[60,140], size:[4,8], dur:[380,640], shape:'p-sq', gravity:150
+  st.lastSteal = performance.now();
+  // two pieces only when the player is well ahead and the clock still allows it
+  const grabTwo = done.length > MR_DOUBLE_AT && st.remain > MR_DOUBLE_TIME &&
+                  done.length - 2 >= 1;
+  const taken = [];
+  const pool = done.slice();
+  for(let k=0; k<(grabTwo?2:1) && pool.length; k++){
+    taken.push(pool.splice(Math.floor(Math.random()*pool.length),1)[0]);
+  }
+  mrSabotageSound(); mrCrackSound();
+  const boo = mrBooEl.getBoundingClientRect();
+  mrBooPlay('jiggle');
+  // jelly flung off Jelly Boo himself…
+  mrGoo(boo.left+boo.width/2, boo.top+boo.height*0.75, {
+    count:7, colors:['#a9f07a','#7ede4a','#4cbb27','#d8ffbd'],
+    speed:[90,190], size:[4,9], dur:[620,940], drop:rnd(60,120)
   });
-  p.inner.classList.remove('wob'); void p.inner.offsetWidth; p.inner.classList.add('wob');
+  taken.forEach((p, k)=>{
+    const r = p.el.getBoundingClientRect();
+    p.placed = false;
+    p.el.classList.remove('locked');
+    // …and paint crumbs knocked out of the hole it left behind
+    mrSpark(r.left+r.width/2, r.top+r.height/2, {
+      count:6, colors:['#ffe066','#ffffff','#ffc531'],
+      speed:[70,170], size:[4,9], dur:[380,660], shape:'p-sq', gravity:170
+    });
+    mrGoo(r.left+r.width/2, r.top+r.height/2, {
+      count:5, colors:MR_ART.palette, speed:[70,160], size:[4,9],
+      dur:[560,880], drop:rnd(40,90), shape:'p-sq'
+    });
+    p.inner.classList.remove('wob'); void p.inner.offsetWidth; p.inner.classList.add('wob');
+    if(k===0){
+      mrFrameEl.classList.remove('shake'); void mrFrameEl.offsetWidth;
+      mrFrameEl.classList.add('shake');
+    }
+  });
+  haptics.fire('error');
   mrBooMood('m-sneak');
+  st.placedSinceSteal = 0;                     // he owes the player ground now
+  // two smug little hops and a puff of jelly, so the theft has a face on it
+  mrLater(()=>{
+    if(!masterpieceRushState.active) return;
+    mrBooPlay('cheer');
+    mrGiggle();
+    const b = mrBooEl.getBoundingClientRect();
+    mrGoo(b.left+b.width/2, b.top+b.height*0.5, {
+      count:4, colors:['#a9f07a','#d8ffbd','#7ede4a'],
+      speed:[60,140], size:[3,7], dur:[420,680], drop:rnd(24,58)
+    });
+  }, 180);
   mrPackTray();
   mrApplyPieces(false);
 }
@@ -2853,10 +3613,11 @@ function mrTick(t){
   const dt = clamp((t-st.lastFrame)/(1000/60), .25, 3);
   st.lastFrame = t;
   if(d.pending){mrMoveDrag(d.pending.x,d.pending.y);d.pending=null;}
-  const follow = 1-Math.pow(1-.45, dt);
+  const follow = 1-Math.pow(1-.88, dt);
   let tx = d.tx, ty = d.ty;
-  if(d.near){                                        // magnetic pull into the hole
-    tx += (d.p.homeX-tx)*0.45; ty += (d.p.homeY-ty)*0.45;
+  if(d.near){                                        // a hint, not a magnet: the
+    tx += (d.p.homeX-tx)*0.10;                       // piece stays under the finger
+    ty += (d.p.homeY-ty)*0.10;                       // and only snaps on release
   }
   const nx = d.x + (tx-d.x)*follow, ny = d.y + (ty-d.y)*follow;
   const dx = nx-d.x;
@@ -2893,9 +3654,22 @@ function mrPlacePiece(p){
   });
   mrPackTray();
   mrApplyPieces(false);
+  st.placedSinceSteal++;
   const done = st.pieces.filter(x=>x.placed).length;
-  if(done === st.pieces.length) completeMasterpiece();
-  else if(done >= MR_SAFE_AT && !st.booBusy) mrBooMood('m-worry');
+  if(done === st.pieces.length){ completeMasterpiece(); return; }
+  // he notices every single piece going back in — a flinch, and real dismay
+  // once the player is past the point where he is allowed to interfere
+  if(!st.booBusy) mrBooPlay('jiggle');
+  if(done >= MR_SAFE_AT){
+    if(!st.booBusy){
+      mrBooMood('m-shock');
+      mrBooPlay('deflate');
+      mrLater(()=>{ if(st.phase==='play' && !st.booBusy) mrBooMood('m-worry'); }, 700);
+    }
+  }else if(!st.booBusy){
+    mrBooMood('m-worry');
+    mrLater(()=>{ if(st.phase==='play' && !st.booBusy) mrBooMood(''); }, 420);
+  }
 }
 function completeMasterpiece(){
   const st = masterpieceRushState;
@@ -2932,7 +3706,8 @@ function completeMasterpiece(){
     mrOverlay.classList.remove('show');
     mgUnlock(MR_ART.id);
     mgOpenWall(MR_ART.id);
-    mrLater(()=>{ mgCloseWall(); endMasterpieceRush(true); }, 2800);
+    // the round is settled up, but the wall stays open — it is the destination
+    mrLater(()=>endMasterpieceRush(true), 2000);
   }, 2300);
 }
 function failMasterpiece(){
@@ -2997,13 +3772,17 @@ function resetMasterpieceRush(){
   mrCancelDrag();
   mrClearTimers();
   mrStopTimer();
-  st.won = false; st.attacks = 0; st.booBusy = false;
+  st.won = false; st.attacks = 0; st.booBusy = false; st.lastSteal = -1e9;
+  st.placedSinceSteal = 99;
   st.remain = MR_TIME;
   mrBannerEl.classList.remove('show');
   mrSplatEl.classList.remove('go');
   mrFrameEl.classList.remove('bounce','shake','hot');
   $('#mrBannerPlus').classList.remove('hide');
   $('#mrArtName').textContent = MR_ART.name;
+  mrGhostEl.classList.remove('gone');        // whole again for the intro preview
+  mrSlotsEl.classList.remove('on');
+  mrBooEl.classList.remove('aim','cheer','deflate','jiggle','land');
   st.built = false; // Rebuild to remove locked classes and old round animations.
   createMasterpiecePieces();
   st.pieces.forEach(p=>{ p.placed = true; });            // start assembled for the preview
@@ -3018,10 +3797,11 @@ function mrIntro(){
     if(!st.active) return;
     mrBooMood('m-sneak');
     mrHop(mrBooCentre(), 620, 2);            // land right in the middle of the painting
-  }, 1150);
+  }, 800);
   mrLater(()=>{                                          // …and bumps the painting
     if(!st.active) return;
-    mrSplatSound();
+    mrSplatSound(); mrCrackSound(); haptics.fire('clear');
+    mrBooPlay('jiggle');
     mrFrameEl.classList.remove('shake'); void mrFrameEl.offsetWidth;
     mrFrameEl.classList.add('shake');
     mrSplatEl.classList.remove('go'); void mrSplatEl.offsetWidth;
@@ -3033,24 +3813,30 @@ function mrIntro(){
     shock.style.top  = (f.top  - base.top  + f.height/2)+'px';
     shock.classList.remove('go'); void shock.offsetWidth; shock.classList.add('go');
     mrSpark(f.left+f.width/2, f.top+f.height/2, {
-      count:8, colors:['#ffd6f0','#fff3b0','#c7f0ff','#ffffff'],
+      count:9, colors:['#ffd6f0','#fff3b0','#c7f0ff','#ffffff'],
       speed:[90,210], size:[5,11], dur:[500,850], shape:'p-sq', gravity:160
+    });
+    const bo = mrBooEl.getBoundingClientRect();
+    mrGoo(bo.left+bo.width/2, bo.top+bo.height*0.8, {
+      count:8, colors:['#a9f07a','#7ede4a','#4cbb27','#d8ffbd'],
+      speed:[100,210], size:[5,11], dur:[680,1020], drop:rnd(70,140)
     });
     mrShatter();                                          // the painting really breaks
     mrLater(()=>{ if(masterpieceRushState.active) mrHop(mrBooHome(), 600, 2); }, 260);
-  }, 1900);
+  }, 1500);
   mrLater(()=>{                                          // …then the clock starts
     if(!st.active) return;
     st.phase = 'play';
     mrBooMood('');
     startMasterpieceTimer();
     mrScheduleAttack(MR_FIRST_ATTACK);
-  }, 2500);
+  }, 2050);
 }
 function startMasterpieceRush(art = mgPlayable()){
   const st = masterpieceRushState;
   if(st.active || resolving || !art || !art.src) return false;
   MR_ART.id=art.id; MR_ART.name=art.name; MR_ART.src=art.src;
+  MR_ART.palette = MR_PALETTES[art.id] || MR_PALETTES.monalisa;
   $('#mrOverlay .mr-ghost use').setAttribute('href','#'+art.src);
   A.init();
   cancelDrag();                     // drop any in-flight main-game drag
@@ -3125,8 +3911,8 @@ window.__mr = {
    ========================================================= */
 const MG_ART = [
   { id:'monalisa', name:'MONA LISA',        cost:5,  src:'mrArtSrc' },
-  { id:'starry',   name:'STARRY NIGHT',     cost:8  },
-  { id:'wave',     name:'THE GREAT WAVE',   cost:12 },
+  { id:'starry',   name:'STARRY NIGHT',     cost:8,  src:'mrStarrySrc' },
+  { id:'wave',     name:'THE GREAT WAVE',   cost:12, src:'mrWaveSrc' },
   { id:'pearl',    name:'GIRL WITH A PEARL',cost:16 },
   { id:'scream',   name:'THE SCREAM',       cost:20 },
   { id:'kiss',     name:'THE KISS',         cost:25 }
@@ -3135,12 +3921,15 @@ const MG_ART = [
 const MG_SLOTS = MG_ART.length;
 function mgIsOwned(a){ return mgOwnedList.includes(a.id); }
 function mgNextIndex(){ return MG_ART.findIndex(a=>!mgIsOwned(a)); }
-function mgPlayable(){                   // the painting a run would hand you now
-  return MG_ART.find(a=>a.src && !mgIsOwned(a)) || MG_ART.filter(a=>a.src).pop();
+// The next painting still to be earned.  Deliberately returns null once every
+// playable painting is collected: replaying only ever happens from the gallery.
+function mgPlayable(){
+  return MG_ART.find(a=>a.src && !mgIsOwned(a)) || null;
 }
 function mgCost(art = mgPlayable()){return art && !mgIsOwned(art) ? art.cost : 0;}
 const mgWallEl = $('#mgWall'), mgGridEl = $('#mgGrid'), mgHintEl = $('#mgHint');
-const mgRushBtn = $('#mrDevBtn');
+const mgNextEl = $('#mgNext');
+const mgBtnEl = $('#mgBtn');
 
 let mgStars = parseInt(store('jellyblocks_stars')||'0',10) || 0;
 // kept in memory so the collection still works where localStorage is blocked
@@ -3154,17 +3943,68 @@ function mgSaveOwned(list){
   store('jellyblocks_gallery', JSON.stringify(mgOwnedList));
 }
 
-function mgAddStars(n){                  // called from the main game's clears
+// The one and only source of progression stars: a full star meter in the main
+// game (see starFever). Nothing else mints them, so the two indicators — the
+// meter at the top and the gallery button at the foot — track the same thing.
+function mgAddStars(n){
   if(!(n>0)) return;
   mgStars += n;
   store('jellyblocks_stars', String(mgStars));
   mgSyncButton();
 }
+// Which painting's "ready" state the player has already been shown, so the
+// badge fires once per painting and comes back for the next one.
+let mgReadyAck = store('jellyblocks_ready_ack') || '';
+function mgAckReady(id){
+  if(mgReadyAck === id) return;
+  mgReadyAck = id;
+  store('jellyblocks_ready_ack', id);
+  mgSyncButton();
+}
+function mgSetNew(on){
+  // toggling only on a real change keeps the wiggle from restarting every clear
+  if(on === mgBtnEl.classList.contains('hasNew')) return;
+  mgBtnEl.classList.toggle('hasNew', on);
+}
 function mgSyncButton(){
-  const cost = mgCost(), ready = mgStars >= cost;
-  mgRushBtn.textContent = ready ? (mgIsOwned(mgPlayable()) ? '🖼 REPLAY' : '🖼 RUSH') : '⭐ '+mgStars+'/'+cost;
-  mgRushBtn.classList.toggle('locked', !ready);
+  const art = mgPlayable();
+  const prog = mgBtnEl.querySelector('.mg-prog');
+  const ready = !!art && mgStars >= art.cost;
+  if(!art) prog.textContent = mgOwnedList.length+'/'+MG_SLOTS+' ✓';
+  else prog.textContent = ready ? 'READY!' : '⭐ '+mgStars+'/'+art.cost;
+  mgBtnEl.classList.toggle('ready', ready);
+  mgSetNew(ready && mgReadyAck !== art.id);
   if(mgWallEl.classList.contains('show')) mgRenderWall(null);   // wall reflects new stars
+}
+/* The wall leads with the painting being worked toward, using those same stars. */
+function mgRenderNext(){
+  const art = mgPlayable();
+  if(!art){
+    mgNextEl.className = '';
+    mgNextEl.innerHTML =
+      '<div class="mg-nlabel">Collection complete</div>'+
+      '<div class="mg-nname">Every masterpiece rescued</div>'+
+      '<div class="mg-ncount">⭐ '+mgStars+' in the bank</div>';
+    return;
+  }
+  const ready = mgStars >= art.cost;
+  const pct = Math.min(100, Math.round(mgStars/art.cost*100));
+  mgNextEl.className = ready ? 'ready' : '';
+  mgNextEl.innerHTML =
+    '<div class="mg-nlabel">Next Masterpiece</div>'+
+    '<div class="mg-nname">'+art.name+'</div>'+
+    (ready
+      ? '<div class="mg-ncount ok">READY!</div>'
+      : '<div class="mg-nbar"><i style="width:'+pct+'%"></i></div>'+
+        '<div class="mg-ncount">⭐ '+mgStars+' / '+art.cost+'</div>');
+  if(ready){
+    const go = document.createElement('button');
+    go.type = 'button'; go.className = 'mg-start';
+    go.textContent = '▶ START RUSH';
+    go.setAttribute('aria-label','Start Masterpiece Rush: '+art.name);
+    go.addEventListener('click', ()=>mgStartArt(art.id));
+    mgNextEl.appendChild(go);
+  }
 }
 function mgHint(msg){
   mgHintEl.textContent = msg;
@@ -3173,6 +4013,7 @@ function mgHint(msg){
 }
 function mgRenderWall(freshId){
   const next = mgNextIndex();
+  mgRenderNext();
   mgGridEl.replaceChildren();
   MG_ART.forEach((art, i)=>{
     const owned  = mgIsOwned(art);
@@ -3213,9 +4054,13 @@ function mgRenderWall(freshId){
 function mgUnlock(id){
   if(mgOwnedList.includes(id)) return false;
   mgSaveOwned(mgOwnedList.concat(id));
+  mgSyncButton();          // progression moves straight on to the next painting
   return true;
 }
 function mgOpenWall(freshId){
+  const nx = mgPlayable();
+  // opening the wall is the acknowledgement: the badge goes away here
+  if(nx && mgStars >= nx.cost) mgAckReady(nx.id);
   mgRenderWall(freshId);
   mgWallEl.classList.add('show');
   if(freshId){
@@ -3237,7 +4082,7 @@ $('#mgClose').addEventListener('click', ()=>{
   if(!masterpieceRushState.active) return;
   endMasterpieceRush(masterpieceRushState.won);
 });
-$('#mgBtn').addEventListener('click', ()=>{
+mgBtnEl.addEventListener('click', ()=>{
   playButtonSound();
   if(mgWallEl.classList.contains('show')) mgCloseWall();
   else mgOpenWall(null);
@@ -3262,9 +4107,6 @@ function mgStartArt(id){
   mgStars-=cost;store('jellyblocks_stars',String(mgStars));mgSyncButton();
   return true;
 }
-mgRushBtn.addEventListener('click',()=>{
-  const art=mgPlayable();if(art)mgStartArt(art.id);
-});
 function resetAllProgress(){
   if(!window.confirm('Reset the entire game? Your score, best score, stars, collected paintings and sound/haptics settings on this device will be reset. This cannot be undone.')) return false;
   endMasterpieceRush(false);mrClearTimers();mrStopTimer();mrCancelDrag();
@@ -3274,8 +4116,8 @@ function resetAllProgress(){
   }
   mgCloseWall();mgHintEl.classList.remove('show');
   $('#feverFlash').classList.remove('go');$('#feverText').classList.remove('go');
-  best=0;mgStars=0;mgSaveOwned([]);
-  store('jellyblocks_best','0');store('jellyblocks_stars','0');
+  best=0;mgStars=0;mgSaveOwned([]);mgReadyAck='';
+  store('jellyblocks_best','0');store('jellyblocks_stars','0');store('jellyblocks_ready_ack','');
   A.enabled=true;haptics.enabled=true;haptics.stop();
   store('jellyblocks_sound','on');store('jellyblocks_haptics','on');
   syncSoundLabel();syncHapticsLabel();
@@ -3299,27 +4141,6 @@ window.__mg = {
 /* =========================================================
    16. BOOT
    ========================================================= */
-if(new URLSearchParams(location.search).get('fps')==='1'){
-  const hud=document.createElement('output'); hud.id='fpsHud';
-  hud.style.cssText='position:fixed;top:env(safe-area-inset-top,0px);left:0;z-index:9999;background:#142033e8;color:white;font:11px monospace;padding:5px;pointer-events:none;white-space:pre';
-  document.body.appendChild(hud);
-  let samples=[],last=0,updated=0,frame=0;
-  function measure(t){
-    if(last) {samples.push(t-last);if(samples.length>300)samples.shift();} last=t;
-    if(t-updated>=1000 && samples.length){
-      const sorted=[...samples].sort((a,b)=>a-b),mean=samples.reduce((a,b)=>a+b,0)/samples.length;
-      hud.textContent=(1000/mean).toFixed(1)+' FPS | p95 '+sorted[Math.floor((sorted.length-1)*.95)].toFixed(1)+' ms'+
-        '\n>33ms '+samples.filter(x=>x>33.34).length+'/'+samples.length+' | '+(dragging?'drag':masterpieceRushState.active?'mini-game':'board')+' | FX '+activeParticles;
-      updated=t;
-    }
-    frame=requestAnimationFrame(measure);
-  }
-  document.addEventListener('visibilitychange',()=>{
-    cancelAnimationFrame(frame);last=0;samples=[];
-    if(!document.hidden)frame=requestAnimationFrame(measure);
-  });
-  frame=requestAnimationFrame(measure);
-}
 buildCells();
 syncSoundLabel();
 board = []; blockEls = [];
@@ -3340,6 +4161,8 @@ window.__jb = {
   fits: (i)=> pieces[i] ? canFitAnywhere(pieces[i]) : false,
   place: (i,r,c)=> (pieces[i] && canPlace(pieces[i],r,c)) ? (placePiece(i,r,c), true) : false,
   audio: A,
+  assist: ASSIST,          // live tuning knobs for the piece-generation helper
+  starChance: ()=>STAR_PIECE_CHANCE,
   get performance(){ return {activeParticles, particleLimit:FX_LIMIT, audioVoices:A.voices, gameTimers:gameTimers.size}; },
   sfx: {
     pickup:playPickupSound, place:()=>playPlaceSound(4,1), pop:playPopSound, bounce:playJellyBounce,
