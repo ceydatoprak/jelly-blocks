@@ -6,10 +6,6 @@
 <meta name="theme-color" content="#a9e5ff">
 <title>Jelly Blocks — Sweet Puzzle</title>
 <style>
-/* ============================================================
-   JELLY BLOCKS — a soft candy block puzzle
-   ============================================================ */
-
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
 
 :root{
@@ -36,7 +32,6 @@ html,body{
 }
 img,a{-webkit-user-drag:none;}
 
-/* ---------- ambient background ---------- */
 #bg{position:absolute;inset:0;z-index:0;overflow:hidden;
   background:
     radial-gradient(115% 55% at 50% -8%, #ffffff 0%, rgba(255,255,255,0) 60%),
@@ -63,13 +58,11 @@ img,a{-webkit-user-drag:none;}
 #bg .k5{width:38px;height:38px;left:6px;bottom:2%;background:linear-gradient(180deg,#e6c7ff,#ab6bf0);transform:rotate(-10deg);}
 #bg .k6{width:44px;height:44px;right:2px;bottom:0%;background:linear-gradient(180deg,#bff2ff,#4cc7f2);transform:rotate(14deg);}
 
-/* ---------- app frame ---------- */
 #app{
   position:relative;z-index:1;
   width:100%;max-width:440px;margin:0 auto;
   height:100vh;height:100dvh;
   display:flex;flex-direction:column;
-  /* the bottom padding reserves the launcher-button band (see #mgBtn) */
   padding:calc(14px + env(safe-area-inset-top)) 9px calc(62px + env(safe-area-inset-bottom));
 }
 @media (hover:hover) and (pointer:fine){
@@ -87,7 +80,6 @@ img,a{-webkit-user-drag:none;}
 }
 #shell{width:100%;height:100%;display:flex;align-items:center;justify-content:center;position:relative;}
 
-/* ============ HEADER ============ */
 header,#playfield,#tray,footer{position:relative;z-index:2;}
 header{flex:0 0 auto;}
 .topRow{display:flex;align-items:flex-start;justify-content:space-between;gap:6px;}
@@ -222,7 +214,6 @@ header{flex:0 0 auto;}
   clip-path:polygon(50% 0%,61% 35%,98% 35%,68% 57%,79% 91%,50% 70%,21% 91%,32% 57%,2% 35%,39% 35%);}
 #starPips i.on{opacity:1;background:linear-gradient(180deg,#fffbe0,#ffd84a);filter:drop-shadow(0 0 4px rgba(255,200,60,.9));}
 
-/* ============ BOARD ============ */
 #playfield{flex:1 1 auto;display:flex;align-items:flex-end;justify-content:center;min-height:0;padding:6px 0 2px;position:relative;}
 #board{
   position:relative;border-radius:30px;
@@ -274,7 +265,6 @@ header{flex:0 0 auto;}
   box-shadow:inset 0 0 0 2px rgba(255,205,60,.95), 0 0 14px rgba(255,196,50,.9);
 }
 
-/* ---------- the jelly block ---------- */
 .jelly{
   position:absolute;border-radius:30%;
   will-change:transform;
@@ -361,7 +351,6 @@ header{flex:0 0 auto;}
 }
 @keyframes ghostPulse{0%,100%{transform:scale(.94);opacity:.75}50%{transform:scale(1.02);opacity:1}}
 
-/* ============ TRAY ============ */
 #tray{
   flex:0 0 auto;margin-top:6px;
   border-radius:28px;padding:10px 8px;
@@ -383,8 +372,6 @@ header{flex:0 0 auto;}
   background:linear-gradient(180deg,rgba(220,185,140,0),rgba(220,185,140,.4),rgba(220,185,140,0));
 }
 .pieceWrap{position:relative;cursor:grab;touch-action:none;transform-origin:center;}
-/* Barely-there idle float. Transform only, three elements, and each slot gets
-   its own duration + negative delay so they never move in lockstep. */
 .pieceWrap.bob{animation:bob var(--bobDur,3.1s) ease-in-out infinite;}
 @keyframes bob{
   0%,100%{transform:translateY(0) rotate(0deg) scale(1,1)}
@@ -401,7 +388,6 @@ footer{
   text-shadow:0 1px 0 rgba(255,255,255,.85);text-transform:uppercase;
 }
 
-/* ============ LAYERS ============ */
 #fx,#dragLayer{position:fixed;inset:0;pointer-events:none;z-index:60;overflow:hidden;}
 #dragLayer{z-index:70;}
 .dragWrap{position:absolute;left:0;top:0;will-change:transform;}
@@ -440,7 +426,6 @@ footer{
 .floatText.huge .m{font-size:37px;letter-spacing:1px;}
 .floatText.huge .p{font-size:25px;}
 
-/* ============ OVERLAYS ============ */
 .overlay{
   position:absolute;inset:0;z-index:80;display:flex;align-items:center;justify-content:center;
   background:rgba(40,60,100,.42);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);
@@ -494,8 +479,6 @@ footer{
 @keyframes feverT{0%{opacity:0;transform:scale(.5) rotate(-10deg)}25%{opacity:1;transform:scale(1.2) rotate(4deg)}40%{transform:scale(1) rotate(0)}75%{opacity:1;transform:scale(1)}100%{opacity:0;transform:scale(1.1) translateY(-30px)}}
 #feverText.go{animation:feverT 1.6s cubic-bezier(.3,1.2,.5,1);}
 
-/* Reference theme: translucent fruit gummies, iced tray and blue sugar glass.
-   Only moving pieces are promoted; idle blocks remain in the board layer. */
 #bg{
   background:
     radial-gradient(ellipse at 10% 92%, #9adc70 0%, transparent 24%),
@@ -581,11 +564,6 @@ footer{
 }
 
 
-/* =========================================================
-   MASTERPIECE RUSH — bonus mini game
-   Every rule is prefixed (#mr… / .mr-…) and scoped to the
-   overlay, so the main Jelly Blocks styling is untouched.
-   ========================================================= */
 #mrOverlay{
   --mr-w:min(64vw, 30vh, 250px);
   --mr-frame:calc(var(--mr-w)*.055);
@@ -895,12 +873,6 @@ footer{
   .mr-piece{transition:transform .12s linear;}
 }
 
-/* =========================================================
-   LINE CLEAR — jellier one-by-one pop
-   Only the look of an already-cleared block changes: the
-   scoring, the timings in placePiece() and the clear order
-   are the main game's own.
-   ========================================================= */
 @keyframes clearPop{
   0%  {transform:scale(1,1) translateY(0) rotate(0);            filter:brightness(1);}
   11% {transform:scale(1.34,.66) translateY(7%);                filter:brightness(1.5) saturate(1.2);}
@@ -926,9 +898,6 @@ footer{
   .cell.flash{animation:none;}
 }
 
-/* =========================================================
-   GALLERY WALL + star gate (collection for finished paintings)
-   ========================================================= */
 #mrShock{
   position:absolute;z-index:9;left:0;top:0;width:40px;height:40px;margin:-20px 0 0 -20px;
   border-radius:50%;pointer-events:none;opacity:0;
@@ -1214,7 +1183,6 @@ html.backgrounded * {animation-play-state:paused!important;}
   <div id="feverFlash"></div>
   <div id="feverText">STAR FEVER!</div>
 
-  <!-- pause -->
   <div class="overlay" id="pauseOverlay">
     <div class="panel">
       <h2>PAUSED</h2>
@@ -1227,7 +1195,6 @@ html.backgrounded * {animation-play-state:paused!important;}
     </div>
   </div>
 
-  <!-- game over -->
   <div class="overlay" id="overOverlay">
     <div class="panel">
       <h2>GAME OVER</h2>
@@ -1241,7 +1208,6 @@ html.backgrounded * {animation-play-state:paused!important;}
     </div>
   </div>
 
-  <!-- ===== MASTERPIECE RUSH mini game (self-contained overlay) ===== -->
   <div id="mrOverlay">
     <button id="mrClose" type="button" aria-label="Close Masterpiece Rush">✕</button>
 
@@ -1281,7 +1247,6 @@ html.backgrounded * {animation-play-state:paused!important;}
       <div class="mr-plus" id="mrBannerPlus">+500</div>
     </div>
 
-    <!-- ===== artwork source — swap this <g> to change the painting ===== -->
     <svg id="mrArtMaster" viewBox="0 0 300 400" aria-hidden="true" focusable="false">
       <defs>
         <linearGradient id="mrSkyG" x1="0" y1="0" x2="0" y2="1">
@@ -1499,7 +1464,6 @@ html.backgrounded * {animation-play-state:paused!important;}
     </svg>
   </div>
 
-  <!-- ===== gallery wall: finished paintings live here ===== -->
   <div id="mgWall">
     <button id="mgClose" type="button" aria-label="Close gallery">✕</button>
     <div class="mg-head">
@@ -1530,9 +1494,6 @@ html.backgrounded * {animation-play-state:paused!important;}
 (function(){
 "use strict";
 
-/* =========================================================
-   0. SHORTHANDS
-   ========================================================= */
 const $ = s => document.querySelector(s);
 const clamp = (v,a,b) => v<a?a:(v>b?b:v);
 const rnd  = (a,b) => a + Math.random()*(b-a);
@@ -1596,9 +1557,6 @@ function cancelDrag(){
   cancelAnimationFrame(rafId); rafId = 0;
 }
 
-/* =========================================================
-   1. AUDIO — everything is synthesised, no files
-   ========================================================= */
 const A = {
   ctx:null, master:null, enabled:true, ready:false, unlocked:false, voices:0, sources:new Set(),
   // Exactly one AudioContext is ever built. Safari hands it back suspended, so
@@ -1794,9 +1752,6 @@ function playGameOverSound(){
   });
 }
 
-/* =========================================================
-   2. PIECE SHAPES  (weighted)
-   ========================================================= */
 function shape(cells, weight){
   let w=0,h=0;
   cells.forEach(p=>{ h=Math.max(h,p[0]+1); w=Math.max(w,p[1]+1); });
@@ -1865,9 +1820,6 @@ function randomPiece(){
   return p;
 }
 
-/* =========================================================
-   3. STATE
-   ========================================================= */
 const N = 8;
 let board, blockEls, pieces, score, displayScore, combo, best;
 let starProgress = 0, starGoal = 3;
@@ -1886,9 +1838,6 @@ function store(key, val){
 best = parseInt(store('jellyblocks_best')||'0',10) || 0;
 A.enabled = store('jellyblocks_sound') !== 'off';
 
-/* =========================================================
-   4. LAYOUT
-   ========================================================= */
 const cellDivs = [];
 function buildCells(){
   innerEl.innerHTML = '';
@@ -1945,9 +1894,6 @@ function posBlock(el,r,c){
   el.style.height = blockSize+'px';
 }
 
-/* =========================================================
-   5. BLOCK FACTORY
-   ========================================================= */
 function makeBlock(color, star, size){
   const el = document.createElement('div');
   el.className = 'jelly c-'+(star?'star':color) + (star?' starB':'');
@@ -1960,9 +1906,6 @@ function makeBlock(color, star, size){
   return el;
 }
 
-/* =========================================================
-   6. GAME SETUP
-   ========================================================= */
 function resetGame(){
   cancelDrag();
   gameTimers.forEach(clearTimeout); gameTimers.clear();
@@ -2079,9 +2022,6 @@ function newPieceSet(){
   return set;
 }
 
-/* =========================================================
-   7. TRAY
-   ========================================================= */
 function renderTray(animate){
   for(let i=0;i<3;i++){
     const slot = trayEl.querySelector('.slot[data-slot="'+i+'"]');
@@ -2120,9 +2060,6 @@ function renderTray(animate){
   }
 }
 
-/* =========================================================
-   8. VALIDATION
-   ========================================================= */
 function canPlace(p, row, col){
   for(const [dr,dc] of p.cells){
     const r = row+dr, c = col+dc;
@@ -2138,9 +2075,6 @@ function canFitAnywhere(p){
   return false;
 }
 
-/* =========================================================
-   9. DRAG & DROP  (pointer events + spring)
-   ========================================================= */
 function onPieceDown(e){
   if(paused || gameOver || resolving || dragging) return;
   if(e.button!=null && e.button!==0) return;
@@ -2303,10 +2237,6 @@ function tick(t){
   else rafId = 0;
 }
 
-/* ---------- ghost preview ---------- */
-// Ghost tiles are pooled: moveTo() only calls updateGhost() when the row,
-// column or validity actually changes, and even then the same handful of
-// elements are re-used instead of being destroyed and rebuilt.
 let ghostEls = [], ghostUsed = 0, litCells = [];
 function clearGhost(){
   for(let i=0;i<ghostUsed;i++) ghostEls[i].style.display = 'none';
@@ -2359,9 +2289,6 @@ function updateGhost(){
   litCells = lit;
 }
 
-/* =========================================================
-   10. PLACEMENT
-   ========================================================= */
 function placePiece(slot, row, col){
   const p = pieces[slot];
   if(!p || resolving || paused || gameOver || !canPlace(p,row,col)) return;
@@ -2446,9 +2373,6 @@ function cellPage(r,c){
   return { x: ib.left + c*cellStride + cellStride/2, y: ib.top + r*cellStride + cellStride/2 };
 }
 
-/* =========================================================
-   11. LINE CLEARING
-   ========================================================= */
 function clearLines(rows, cols){
   const lines = rows.length + cols.length;
   const set = new Map();   // "r,c" -> {r,c,order}
@@ -2577,9 +2501,6 @@ function comboMessage(c, lines){
   return 'NICE!';
 }
 
-/* =========================================================
-   12. SCORE / COMBO / STARS
-   ========================================================= */
 let scoreTween = 0;
 function addScore(v){
   score += v;
@@ -2704,9 +2625,6 @@ function starFever(){
   updateStarMeter(false);
 }
 
-/* =========================================================
-   13. FX — particles, floating text, board impact
-   ========================================================= */
 function spawnParticles(x, y, o){
   if(document.hidden || reducedMotion.matches) return;
   const count = Math.min(o.count||4, FX_LIMIT-activeParticles);
@@ -2785,9 +2703,6 @@ function boardImpact(strength){
   ], {duration:250+s*18, easing:'cubic-bezier(.3,1.2,.5,1)'});
 }
 
-/* =========================================================
-   14. GAME OVER
-   ========================================================= */
 function checkGameOver(){
   if(gameOver) return;
   const live = pieces.filter(Boolean);
@@ -2806,9 +2721,6 @@ function checkGameOver(){
   }, 420);
 }
 
-/* =========================================================
-   15. UI WIRING
-   ========================================================= */
 $('#pauseBtn').addEventListener('click', ()=>{
   A.init(); playButtonSound();
   if(gameOver) return;
@@ -2873,18 +2785,6 @@ document.addEventListener('visibilitychange', ()=>{
   }
 });
 
-/* =========================================================
-   MASTERPIECE RUSH MINI GAME
-   Rebuild a famous painting out of soft jelly puzzle pieces
-   before the timer runs out, while Jelly Boo makes trouble.
-
-   Fully isolated from Jelly Blocks: own timers, own drag loop,
-   own fx layer, own DOM.  The only touch points with the main
-   game are `paused` (freeze / unfreeze), addScore() for the
-   reward and the shared audio + helper functions.
-   ========================================================= */
-
-/* ---- artwork definition (swap ART + #mrArtSrc for another painting) ---- */
 const MR_PALETTES = {
   monalisa:['#e8c69b','#8d7550','#33291c','#95a184','#c6bd92','#4c3e2b','#fff3d0'],
   starry:  ['#f4d76b','#2a4a86','#12224a','#e8e3b0','#1a1206','#6f92d4','#fff3b8'],
@@ -2962,7 +2862,6 @@ const masterpieceRushState = {
   placedSinceSteal:99
 };
 
-/* ---- timers kept apart from the main game's gameTimers ---- */
 const mrTimers = new Set();
 function mrArmTimer(job){
   job.started=performance.now();
@@ -2985,7 +2884,6 @@ document.addEventListener('visibilitychange',()=>{
   }
 });
 
-/* ---- little sound wrappers (all reuse the main WebAudio engine) ---- */
 function mrPickup(){ playPickupSound(); }
 function mrPlop(){ playPlaceSound(4, 1); tone({f:1180, f2:820, dur:.06, g:.03, atk:.004}); }
 function mrBoing(){ playInvalidSound(); }
@@ -3013,7 +2911,6 @@ function mrWhine(){
 }
 function mrTickSound(last){ tone({f:last ? 760 : 620, dur:.07, g:.05, atk:.004, lp:2200}); }
 
-/* ---- sparkles inside the overlay (shares the global particle budget) ---- */
 function mrSpark(x, y, o){
   if(document.hidden || reducedMotion.matches) return;
   const box = mrFxEl.getBoundingClientRect();
@@ -3046,8 +2943,6 @@ function mrSpark(x, y, o){
   }
 }
 
-/* Soft jelly droplets: they arc out of Jelly Boo, splat on an invisible floor,
-   bounce a couple of times and melt away.  Same budget guard as mrSpark(). */
 function mrGoo(x, y, o){
   if(document.hidden || reducedMotion.matches) return;
   const box = mrFxEl.getBoundingClientRect();
@@ -3085,9 +2980,6 @@ function mrGoo(x, y, o){
   }
 }
 
-/* =========================================================
-   piece geometry
-   ========================================================= */
 function mrSegPoints(key, rev){
   const s = MR_SEG[key];
   return rev ? [s[6],s[7], s[4],s[5], s[2],s[3], s[0],s[1]] : s;
@@ -3147,10 +3039,6 @@ function createMasterpiecePieces(){
   st.built = true;
 }
 
-/* =========================================================
-   layout — everything is positioned with transforms in the
-   coordinate space of #mrPieces, so a resize is one pass
-   ========================================================= */
 function mrLayout(instant){
   const st = masterpieceRushState;
   if(!st.built) return;
